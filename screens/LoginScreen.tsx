@@ -1,5 +1,4 @@
-import { View, Text } from 'react-native';
-import { LinearGradient } from 'expo-linear-gradient';
+import { View, Text, Image, TouchableOpacity } from 'react-native';
 import { Input, Button } from '../components/ui';
 import { useState } from 'react';
 
@@ -11,17 +10,21 @@ export const LoginScreen = () => {
     console.log('Login:', email, password);
   };
 
+  const handleForgotPassword = () => {
+    console.log('Forgot password');
+  };
+
   return (
-    <LinearGradient
-      colors={['#154EA4', '#3480B5', '#20A0D8', '#48B7E8', '#AEE1F8']}
-      className="flex-1 justify-center px-6"
-    >
-      <View className="items-center mb-8">
-        <Text className="text-white text-3xl font-bold">Welcome Back</Text>
-        <Text className="text-white/80 text-base mt-2">Sign in to continue</Text>
+    <View className="flex-1 bg-white justify-center px-6">
+      <View className="items-center mb-4">
+        <Image 
+          source={require('../assets/logo/logo.png')}
+          style={{ width: 200, height: 200 }}
+          resizeMode="contain"
+        />
       </View>
 
-      <View className="bg-white rounded-2xl p-6">
+      <View style={{ marginBottom: -20 }}>
         <Input
           label="Email"
           placeholder="Enter your email"
@@ -37,10 +40,15 @@ export const LoginScreen = () => {
           onChangeText={setPassword}
           secureTextEntry
         />
-        <Button variant="primary" onPress={handleLogin} className="mt-4">
+        <Button variant="primary" size="lg" onPress={handleLogin} className="mt-4">
           Login
         </Button>
+        <TouchableOpacity onPress={handleForgotPassword} className="items-center mt-4">
+          <Text className="text-blue-600 text-lg font-semibold" style={{ textDecorationLine: 'underline' }}>
+            Forgot Password?
+          </Text>
+        </TouchableOpacity>
       </View>
-    </LinearGradient>
+    </View>
   );
 };
