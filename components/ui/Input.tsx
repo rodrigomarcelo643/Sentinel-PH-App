@@ -63,7 +63,7 @@ export const Input = ({ label, error, icon, value, onFocus: onFocusProp, ...prop
   return (
     <View 
       // @ts-ignore - NativeWind className
-      className={error ? "mb-1" : "mb-6"}
+      className={error ? "mb-1" : "mb-3"}
     >
       <View 
         // @ts-ignore - NativeWind className
