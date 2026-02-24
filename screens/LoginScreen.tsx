@@ -14,6 +14,10 @@ export const LoginScreen = () => {
     console.log('Forgot password');
   };
 
+  const handleRegister = () => {
+    console.log('Navigate to register');
+  };
+
   return (
     <View className="flex-1 bg-white justify-center px-6">
       <View className="items-center mb-4">
@@ -48,6 +52,14 @@ export const LoginScreen = () => {
             Forgot Password?
           </Text>
         </TouchableOpacity>
+        <View className="flex-row items-center justify-center mt-4">
+          <Text className="text-gray-600 text-lg">Don't Have Account? </Text>
+          <TouchableOpacity onPress={handleRegister}>
+            <Text className="text-blue-600 text-lg font-semibold" style={{ textDecorationLine: 'underline' }}>
+              Register
+            </Text>
+          </TouchableOpacity>
+        </View>
       </View>
     </View>
   );
