@@ -1,12 +1,13 @@
-import { Text, TouchableOpacity, TouchableOpacityProps } from 'react-native';
+import { Text, TouchableOpacity, TouchableOpacityProps, StyleProp, ViewStyle } from 'react-native';
 
 interface ButtonProps extends TouchableOpacityProps {
   variant?: 'primary' | 'secondary' | 'outline';
   size?: 'sm' | 'md' | 'lg';
   children: React.ReactNode;
+  sizeStyle?: StyleProp<ViewStyle>;
 }
 
-export function Button({ variant = 'primary', size = 'md', children, className = '', ...props }: ButtonProps) {
+export function Button({ variant = 'primary', size = 'md', children, className = '', sizeStyle, ...props }: ButtonProps) {
   const baseStyles = 'rounded-lg items-center justify-center';
   
   const variantStyles = {
@@ -36,6 +37,7 @@ export function Button({ variant = 'primary', size = 'md', children, className =
   return (
     <TouchableOpacity 
       className={`${baseStyles} ${variantStyles[variant]} ${sizeStyles[size]} ${className}`}
+      style={sizeStyle}
       {...props}
     >
       <Text className={`${textStyles[variant]} ${textSizeStyles[size]}`}>
