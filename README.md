@@ -18,6 +18,11 @@
 
 - 🔐 Authentication with Firebase
 - 🇵🇭 Philippine Contact Number Input
+- 📷 Camera Integration (ID Scanner & Selfie)
+- 📝 Multi-Step Registration Form
+  - Personal Details (Name, Contact, Address)
+  - Document Verification (ID Upload & Selfie)
+  - Account Credentials (Password with validation)
 - 🎨 Custom UI Components with NativeWind
 - ⚡ Smooth Animations
 - 🌐 Cross-platform (iOS & Android)
@@ -29,6 +34,9 @@
 - **Styling:** NativeWind (TailwindCSS for React Native)
 - **Backend:** Firebase (Auth, Firestore, Storage)
 - **Navigation:** React Navigation
+- **Camera:** Expo Camera
+- **Image Picker:** Expo Image Picker
+- **Icons:** Lucide React Native
 - **Fonts:** Inter (Light, Medium, SemiBold)
 
 ## 📂 Project Structure
@@ -40,6 +48,15 @@ Sentinel-PH-App/
 │   ├── fonts/                # Custom fonts (Inter)
 │   └── logo/                 # App logo
 ├── components/               # Reusable components
+│   ├── camera/              # Camera components
+│   │   ├── IDScannerCamera.tsx
+│   │   └── SelfieCamera.tsx
+│   ├── registration/        # Multi-step registration components
+│   │   ├── PersonalDetailsStep.tsx
+│   │   ├── DocumentVerificationStep.tsx
+│   │   ├── CredentialsStep.tsx
+│   │   ├── RegistrationModals.tsx
+│   │   └── index.ts
 │   ├── screens/             # Screen components
 │   │   └── SplashScreen.tsx
 │   └── ui/                  # UI components
@@ -52,17 +69,24 @@ Sentinel-PH-App/
 │       ├── Divider.tsx
 │       ├── Input.tsx
 │       ├── Spinner.tsx
-│       └── Switch.tsx
+│       ├── StepIndicator.tsx
+│       ├── Switch.tsx
+│       └── index.ts
 ├── config/                   # Configuration files
 │   └── firebase.ts          # Firebase config
 ├── constants/               # App constants
 ├── context/                 # React context providers
+│   ├── AuthContext.tsx      # Authentication context
+│   └── index.ts
 ├── hooks/                   # Custom React hooks
 ├── lib/                     # Library integrations
 │   └── firebase.ts         # Firebase initialization
 ├── navigation/              # Navigation setup
 ├── screens/                 # App screens
-│   └── LoginScreen.tsx
+│   ├── LoginScreen.tsx
+│   ├── RegisterScreen.tsx
+│   ├── MultiStepRegisterScreen.tsx
+│   └── index.ts
 ├── services/                # API services
 ├── theme/                   # Theme configuration
 ├── utils/                   # Utility functions
