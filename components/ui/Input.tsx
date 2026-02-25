@@ -5,12 +5,26 @@ interface InputProps extends TextInputProps {
   label?: string;
   error?: string;
   icon?: React.ReactNode;
+  rightIcon?: React.ReactNode;
   onFocus?: () => void;
 }
 
-export const Input = ({ label, error, icon, value, onFocus: onFocusProp, ...props }: InputProps) => {
+export const Input = ({ label, error, icon, rightIcon, value, onFocus: onFocusProp, ...props }: InputProps) => {
   const [isFocused, setIsFocused] = useState(false);
   const [animatedValue] = useState(new Animated.Value(value ? 1 : 0));
+
+  const renderLabel = () => {
+    if (!label) return null;
+    const parts = label.split('*');
+    if (parts.length > 1) {
+      return (
+        <>
+          {parts[0]}<Text style={{ color: '#ef4444' }}>*</Text>{parts[1]}
+        </>
+      );
+    }
+    return label;
+  };
 
   useEffect(() => {
     if (value) {
@@ -102,7 +116,7 @@ export const Input = ({ label, error, icon, value, onFocus: onFocusProp, ...prop
                   labelStyle,
                 ]}
               >
-                {label}
+                {renderLabel()}
               </Animated.Text>
             )}
             <TextInput
@@ -116,6 +130,14 @@ export const Input = ({ label, error, icon, value, onFocus: onFocusProp, ...prop
               {...props}
             />
           </View>
+          {rightIcon && (
+            <View 
+              // @ts-ignore - NativeWind className
+              className="ml-3"
+            >
+              {rightIcon}
+            </View>
+          )}
         </View>
       </View>
       {error && (
