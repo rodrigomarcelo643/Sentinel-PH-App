@@ -2,7 +2,7 @@ import { StatusBar } from 'expo-status-bar';
 import { useState, useEffect } from 'react';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { SplashScreen } from './components/screens/SplashScreen';
-import { LoginScreen, RegisterScreen } from './screens';
+import { LoginScreen, MultiStepRegisterScreen } from './screens';
 import { AuthProvider } from './context';
 import { useFonts } from 'expo-font';
 import './global.css';
@@ -36,7 +36,7 @@ export default function App() {
         ) : currentScreen === 'login' ? (
           <LoginScreen onNavigateToRegister={() => setCurrentScreen('register')} />
         ) : (
-          <RegisterScreen onNavigateToLogin={() => setCurrentScreen('login')} />
+          <MultiStepRegisterScreen onNavigateToLogin={() => setCurrentScreen('login')} />
         )}
         <StatusBar style="light" />
       </SafeAreaProvider>
