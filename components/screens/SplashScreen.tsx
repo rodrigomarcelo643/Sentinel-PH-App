@@ -9,7 +9,7 @@ export const SplashScreen = () => {
           className="h-[200px] w-[200px] "
           resizeMode="contain"
         />
-        <ActivityIndicator size="large" color="#20A0D8" className="-mt-10" />
+        <ActivityIndicator size="large" color="#1B365D" className="-mt-10" />
       </View>
     </View>
   );

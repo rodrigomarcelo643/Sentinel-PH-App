@@ -8,3 +8,4 @@ export { Divider } from './Divider';
 export { Input } from './Input';
 export { Spinner } from './Spinner';
 export { Switch } from './Switch';
+export { StepIndicator } from './StepIndicator';
