@@ -1,12 +1,10 @@
-import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { 
-  createUserWithEmailAndPassword, 
-  signInWithEmailAndPassword, 
-  signOut, 
-  onAuthStateChanged,
-  User
-} from 'firebase/auth';
-import { auth } from '../lib/firebase';
+import { createContext, useContext, useState, ReactNode } from 'react';
+
+interface User {
+  uid: string;
+  email: string;
+  displayName?: string;
+}
 
 interface AuthContextType {
   user: User | null;
@@ -20,27 +18,36 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
-      setUser(user);
-      setLoading(false);
-    });
-
-    return unsubscribe;
-  }, []);
+  const [loading, setLoading] = useState(false);
 
   const register = async (email: string, password: string) => {
-    await createUserWithEmailAndPassword(auth, email, password);
+    setLoading(true);
+    try {
+      // TODO: Implement Firebase registration when credentials are configured
+      console.log('Register:', email, password);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const login = async (email: string, password: string) => {
-    await signInWithEmailAndPassword(auth, email, password);
+    setLoading(true);
+    try {
+      // TODO: Implement Firebase login when credentials are configured
+      console.log('Login:', email, password);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const logout = async () => {
-    await signOut(auth);
+    setLoading(true);
+    try {
+      // TODO: Implement Firebase logout when credentials are configured
+      setUser(null);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
