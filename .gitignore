@@ -10,7 +10,11 @@ npm-debug.*
 *.orig.*
 web-build/
 
-
+# Environment Ignored Files
+.env
+.env.development    
+.env.production
+.env.test   
 
 
 ios
