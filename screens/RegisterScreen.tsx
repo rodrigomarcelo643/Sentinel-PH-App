@@ -54,9 +54,6 @@ export const RegisterScreen = ({ onNavigateToLogin }: RegisterScreenProps) => {
             style={{ width: 150, height: 150 }}
             resizeMode="contain"
           />
-          <Text className="text-2xl font-semibold text-[#1B365D] mt-2" style={{ fontFamily: 'Inter-SemiBold' }}>
-            Create Account
-          </Text>
         </Animated.View>
 
         <Animated.View 
@@ -71,7 +68,6 @@ export const RegisterScreen = ({ onNavigateToLogin }: RegisterScreenProps) => {
           />
           
           <View className="mb-3">
-            <Text className="text-gray-700 text-sm mb-2 font-medium" style={{ fontFamily: 'Inter-Medium' }}>Contact Number</Text>
             <View className="flex-row items-center rounded-xl border-2 border-gray-300 bg-white px-4">
               <Text className="mr-2 text-2xl">🇵🇭</Text>
               <Text
