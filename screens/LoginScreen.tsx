@@ -110,7 +110,7 @@ export const LoginScreen = ({ onNavigateToRegister }: LoginScreenProps) => {
           onPress={handleLogin}
           className="mt-6"
           disabled={contactNumber.length !== 10}>
-          Login
+          Sign In
         </Button>
         <TouchableOpacity onPress={handleForgotPassword} className="mt-6 items-center">
           <Text
@@ -120,7 +120,7 @@ export const LoginScreen = ({ onNavigateToRegister }: LoginScreenProps) => {
           </Text>
         </TouchableOpacity>
         <View className="mt-6 flex-row items-center justify-center" style={{ marginTop: 15 }}>
-          <Text className="text-lg text-gray-600"   style={{ fontFamily: 'Inter-Medium' }}>Don't Have Account? </Text>
+          <Text className="text-lg text-gray-600"   style={{ fontFamily: 'Inter-Medium' }}>Become a Sentinel? </Text>
           <TouchableOpacity onPress={handleRegister} >
             <Text
               className="font-semibold text-lg text-[#1B365D]"
