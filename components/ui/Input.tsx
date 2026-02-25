@@ -73,7 +73,7 @@ export const Input = ({ label, error, icon, value, onFocus: onFocusProp, ...prop
           // @ts-ignore - NativeWind className
           className="flex-row items-center border-2 rounded-xl px-4 bg-white"
           style={{
-            borderColor: error ? '#f87171' : isFocused ? '#20A0D8' : '#e5e7eb',
+            borderColor: error ? '#f87171' : isFocused ? '#1B365D' : '#e5e7eb',
           }}
         >
           {icon && (
@@ -94,7 +94,7 @@ export const Input = ({ label, error, icon, value, onFocus: onFocusProp, ...prop
                   {
                     position: 'absolute',
                     left: 0,
-                    color: error ? '#f87171' : isFocused ? '#20A0D8' : '#6b7280',
+                    color: error ? '#f87171' : isFocused ? '#1B365D' : '#6b7280',
                     backgroundColor: 'white',
                     paddingHorizontal: 4,
                     fontFamily: 'Inter-Medium',
