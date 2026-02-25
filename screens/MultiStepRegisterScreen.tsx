@@ -249,7 +249,7 @@ export const MultiStepRegisterScreen = ({ onNavigateToLogin }: MultiStepRegister
           </Text>
           <TouchableOpacity onPress={onNavigateToLogin}>
             <Text className="font-semibold text-lg text-[#1B365D]" style={{ textDecorationLine: 'underline' }}>
-              Login
+              Sign In
             </Text>
           </TouchableOpacity>
         </View>
