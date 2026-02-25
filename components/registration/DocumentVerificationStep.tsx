@@ -117,7 +117,7 @@ export const DocumentVerificationStep = ({
             <View>
               {idImageLoading && (
                 <View className="absolute inset-0 bg-gray-200 items-center justify-center" style={{ height: 192 }}>
-                  <View className="w-12 h-12 border-4 border-gray-300 border-t-[#1B365D] rounded-full" style={{ animation: 'spin 1s linear infinite' }} />
+                  <View className="w-12 h-12 border-4 border-gray-300 border-t-[#1B365D] rounded-full" />
                 </View>
               )}
               <Image 
@@ -167,7 +167,7 @@ export const DocumentVerificationStep = ({
             <View>
               {selfieImageLoading && (
                 <View className="absolute inset-0 bg-gray-200 items-center justify-center" style={{ height: 192 }}>
-                  <View className="w-12 h-12 border-4 border-gray-300 border-t-[#1B365D] rounded-full" style={{ animation: 'spin 1s linear infinite' }} />
+                  <View className="w-12 h-12 border-4 border-gray-300 border-t-[#1B365D] rounded-full" />
                 </View>
               )}
               <Image 
