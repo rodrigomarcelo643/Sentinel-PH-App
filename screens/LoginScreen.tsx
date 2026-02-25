@@ -1,6 +1,7 @@
 import { View, Text, Image, TouchableOpacity, TextInput, Animated } from 'react-native';
 import { Input, Button } from '../components/ui';
 import { useState, useEffect, useRef } from 'react';
+import { Eye, EyeOff, Lock } from 'lucide-react-native';
 
 interface LoginScreenProps {
   onNavigateToRegister: () => void;
@@ -9,6 +10,7 @@ interface LoginScreenProps {
 export const LoginScreen = ({ onNavigateToRegister }: LoginScreenProps) => {
   const [contactNumber, setContactNumber] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const slideAnim = useRef(new Animated.Value(50)).current;
 
@@ -62,7 +64,7 @@ export const LoginScreen = ({ onNavigateToRegister }: LoginScreenProps) => {
       </Animated.View>
 
       <Animated.View 
-        style={{ marginBottom: -20, opacity: fadeAnim, transform: [{ translateY: slideAnim }] }}
+        style={{ opacity: fadeAnim, transform: [{ translateY: slideAnim }] }}
       >
         <View className="mb-3">
          
@@ -90,26 +92,36 @@ export const LoginScreen = ({ onNavigateToRegister }: LoginScreenProps) => {
           placeholder="Enter your password"
           value={password}
           onChangeText={setPassword}
-          secureTextEntry
+          secureTextEntry={!showPassword}
+          icon={<Lock size={20} color="#6b7280" />}
+          rightIcon={
+            <TouchableOpacity onPress={() => setShowPassword(!showPassword)}>
+              {showPassword ? (
+                <Eye size={20} color="#6b7280" />
+              ) : (
+                <EyeOff size={20} color="#6b7280" />
+              )}
+            </TouchableOpacity>
+          }
         />
         <Button
           variant="primary"
           size="lg"
           onPress={handleLogin}
-          className="mt-4"
+          className="mt-6"
           disabled={contactNumber.length !== 10}>
           Login
         </Button>
-        <TouchableOpacity onPress={handleForgotPassword} className="mt-4 items-center">
+        <TouchableOpacity onPress={handleForgotPassword} className="mt-6 items-center">
           <Text
             className="font-semibold text-lg text-[#1B365D]"
-            style={{ textDecorationLine: 'underline' }}>
+            style={{ textDecorationLine: 'underline' , marginTop: 10}}>
             Forgot Password?
           </Text>
         </TouchableOpacity>
-        <View className="mt-4 flex-row items-center justify-center">
+        <View className="mt-6 flex-row items-center justify-center" style={{ marginTop: 15 }}>
           <Text className="text-lg text-gray-600"   style={{ fontFamily: 'Inter-Medium' }}>Don't Have Account? </Text>
-          <TouchableOpacity onPress={handleRegister}>
+          <TouchableOpacity onPress={handleRegister} >
             <Text
               className="font-semibold text-lg text-[#1B365D]"
               style={{ textDecorationLine: 'underline' }}>
