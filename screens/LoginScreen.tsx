@@ -1,13 +1,39 @@
-import { View, Text, Image, TouchableOpacity } from 'react-native';
+import { View, Text, Image, TouchableOpacity, TextInput, Animated } from 'react-native';
 import { Input, Button } from '../components/ui';
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 
 export const LoginScreen = () => {
-  const [email, setEmail] = useState('');
+  const [contactNumber, setContactNumber] = useState('');
   const [password, setPassword] = useState('');
+  const fadeAnim = useRef(new Animated.Value(0)).current;
+  const slideAnim = useRef(new Animated.Value(50)).current;
+
+  useEffect(() => {
+    Animated.parallel([
+      Animated.timing(fadeAnim, {
+        toValue: 1,
+        duration: 800,
+        useNativeDriver: true,
+      }),
+      Animated.timing(slideAnim, {
+        toValue: 0,
+        duration: 600,
+        useNativeDriver: true,
+      }),
+    ]).start();
+  }, []);
+
+  const handleContactChange = (text: string) => {
+    const cleaned = text.replace(/[^0-9]/g, '');
+    if (cleaned.startsWith('0')) {
+      setContactNumber(cleaned.substring(1));
+    } else if (cleaned.length <= 10) {
+      setContactNumber(cleaned);
+    }
+  };
 
   const handleLogin = () => {
-    console.log('Login:', email, password);
+    console.log('Login:', '+63' + contactNumber, password);
   };
 
   const handleForgotPassword = () => {
@@ -19,24 +45,42 @@ export const LoginScreen = () => {
   };
 
   return (
-    <View className="flex-1 bg-white justify-center px-6">
-      <View className="items-center mb-4">
-        <Image 
+    <View className="flex-1 justify-center bg-white px-6">
+      <Animated.View 
+        className="mb-4 items-center"
+        style={{ opacity: fadeAnim, transform: [{ translateY: slideAnim }] }}
+      >
+        <Image
           source={require('../assets/logo/logo.png')}
           style={{ width: 200, height: 200 }}
           resizeMode="contain"
         />
-      </View>
+      </Animated.View>
 
-      <View style={{ marginBottom: -20 }}>
-        <Input
-          label="Email"
-          placeholder="Enter your email"
-          value={email}
-          onChangeText={setEmail}
-          keyboardType="email-address"
-          autoCapitalize="none"
-        />
+      <Animated.View 
+        style={{ marginBottom: -20, opacity: fadeAnim, transform: [{ translateY: slideAnim }] }}
+      >
+        <View className="mb-3">
+         
+          <View className="flex-row items-center rounded-xl border-2 border-gray-300 bg-white px-4">
+            <Text className="mr-2 text-2xl">🇵🇭</Text>
+            <Text
+              className="mr-2 font-medium text-base text-gray-300"
+              style={{ fontFamily: 'Inter-Medium' }}>
+              +63 | 
+            </Text>
+            <View className="mr-2 h-6 w-px bg-gray-300" />
+            <TextInput
+              className="flex-1 text-base text-gray-800"
+              style={{ paddingVertical: 16, fontFamily: 'Inter-Medium' }}
+              placeholder="9XX XXX XXXX"
+              value={contactNumber}
+              onChangeText={handleContactChange}
+              keyboardType="phone-pad"
+              maxLength={10}
+            />
+          </View>
+        </View>
         <Input
           label="Password"
           placeholder="Enter your password"
@@ -44,23 +88,32 @@ export const LoginScreen = () => {
           onChangeText={setPassword}
           secureTextEntry
         />
-        <Button variant="primary" size="lg" onPress={handleLogin} className="mt-4">
+        <Button
+          variant="primary"
+          size="lg"
+          onPress={handleLogin}
+          className="mt-4"
+          disabled={contactNumber.length !== 10}>
           Login
         </Button>
-        <TouchableOpacity onPress={handleForgotPassword} className="items-center mt-4">
-          <Text className="text-blue-600 text-lg font-semibold" style={{ textDecorationLine: 'underline' }}>
+        <TouchableOpacity onPress={handleForgotPassword} className="mt-4 items-center">
+          <Text
+            className="font-semibold text-lg text-[#1B365D]"
+            style={{ textDecorationLine: 'underline' }}>
             Forgot Password?
           </Text>
         </TouchableOpacity>
-        <View className="flex-row items-center justify-center mt-4">
-          <Text className="text-gray-600 text-lg">Don't Have Account? </Text>
+        <View className="mt-4 flex-row items-center justify-center">
+          <Text className="text-lg text-gray-600"   style={{ fontFamily: 'Inter-Medium' }}>Don't Have Account? </Text>
           <TouchableOpacity onPress={handleRegister}>
-            <Text className="text-blue-600 text-lg font-semibold" style={{ textDecorationLine: 'underline' }}>
+            <Text
+              className="font-semibold text-lg text-[#1B365D]"
+              style={{ textDecorationLine: 'underline' }}>
               Register
             </Text>
           </TouchableOpacity>
         </View>
-      </View>
+      </Animated.View>
     </View>
   );
 };
