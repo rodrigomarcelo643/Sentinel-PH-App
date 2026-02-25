@@ -2,7 +2,11 @@ import { View, Text, Image, TouchableOpacity, TextInput, Animated } from 'react-
 import { Input, Button } from '../components/ui';
 import { useState, useEffect, useRef } from 'react';
 
-export const LoginScreen = () => {
+interface LoginScreenProps {
+  onNavigateToRegister: () => void;
+}
+
+export const LoginScreen = ({ onNavigateToRegister }: LoginScreenProps) => {
   const [contactNumber, setContactNumber] = useState('');
   const [password, setPassword] = useState('');
   const fadeAnim = useRef(new Animated.Value(0)).current;
@@ -41,7 +45,7 @@ export const LoginScreen = () => {
   };
 
   const handleRegister = () => {
-    console.log('Navigate to register');
+    onNavigateToRegister();
   };
 
   return (
