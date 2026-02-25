@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "my-expo-app",
-    "slug": "my-expo-app",
+    "name": "sentinel-ph",
+    "slug": "sentinel-ph",
     "version": "1.0.0",
 
     "web": {
@@ -16,12 +16,12 @@
     "plugins": [],
 
     "orientation": "portrait",
-    "icon": "./assets/icon.png",
+    "icon": "./assets/logo/logo.png",
 
     "userInterfaceStyle": "light",
 
     "splash": {
-      "image": "./assets/splash.png",
+      "image": "./assets/logo/logo.png",
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
     },
