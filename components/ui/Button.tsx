@@ -11,9 +11,9 @@ export function Button({ variant = 'primary', size = 'md', children, className =
   const baseStyles = 'rounded-lg items-center justify-center';
   
   const variantStyles = {
-    primary: 'bg-blue-600 active:bg-blue-700',
+    primary: 'bg-[#1B365D] active:bg-[#152a4a]',
     secondary: 'bg-gray-600 active:bg-gray-700',
-    outline: 'border-2 border-blue-600 active:bg-blue-50',
+    outline: 'border-2 border-[#1B365D] active:bg-blue-50',
   };
   
   const sizeStyles = {
@@ -25,7 +25,7 @@ export function Button({ variant = 'primary', size = 'md', children, className =
   const textStyles = {
     primary: 'text-white font-semibold',
     secondary: 'text-white font-semibold',
-    outline: 'text-blue-600 font-semibold',
+    outline: 'text-[#1B365D] font-semibold',
   };
   
   const textSizeStyles = {
