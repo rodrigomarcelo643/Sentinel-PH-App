@@ -1,0 +1,14 @@
+# RAG Module - INACTIVE
+# This folder contains template files for future RAG implementation
+
+# Ignore if accidentally activated
+*.log
+*.cache
+
+# Keep template files
+!*.ts
+!*.json
+!*.md
+!.gitignore
+
+# Note: This module is INACTIVE and should not be imported in the main app
