@@ -9,6 +9,7 @@ export interface UserData {
   firstName: string;
   lastName: string;
   middleInitial: string;
+  communityRole?: string;
   address: {
     region: string;
     municipality: string;
