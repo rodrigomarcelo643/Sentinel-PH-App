@@ -1,0 +1,16 @@
+# CI/CD Workflows - INACTIVE
+# Prevent accidental activation of template files
+
+# Ignore active workflow files (keep templates only)
+*.yml
+!*.yml.template
+
+# Keep documentation
+!README.md
+!.gitignore
+
+# Workflow logs and artifacts
+*.log
+artifacts/
+
+# Note: To activate, rename .template files to .yml
