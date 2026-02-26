@@ -1,18 +1,24 @@
-import { View, Text, Image, TouchableOpacity, TextInput, Animated } from 'react-native';
+import { View, Text, Image, TouchableOpacity, TextInput, Animated, Alert, Modal, ActivityIndicator } from 'react-native';
 import { Input, Button } from '../components/ui';
 import { useState, useEffect, useRef } from 'react';
-import { Eye, EyeOff, Lock } from 'lucide-react-native';
+import { Eye, EyeOff, Lock, WifiOff } from 'lucide-react-native';
+import { loginWithContactNumber } from '../services';
+import { useAuth } from '../context';
 
 interface LoginScreenProps {
   onNavigateToRegister: () => void;
+  onNavigateToPending: () => void;
 }
 
-export const LoginScreen = ({ onNavigateToRegister }: LoginScreenProps) => {
+export const LoginScreen = ({ onNavigateToRegister, onNavigateToPending }: LoginScreenProps) => {
   const [contactNumber, setContactNumber] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
+  const [showSigningInModal, setShowSigningInModal] = useState(false);
+  const [showNetworkErrorModal, setShowNetworkErrorModal] = useState(false);
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const slideAnim = useRef(new Animated.Value(50)).current;
+  const { setUser } = useAuth();
 
   useEffect(() => {
     Animated.parallel([
@@ -32,14 +38,38 @@ export const LoginScreen = ({ onNavigateToRegister }: LoginScreenProps) => {
   const handleContactChange = (text: string) => {
     const cleaned = text.replace(/[^0-9]/g, '');
     if (cleaned.startsWith('0')) {
-      setContactNumber(cleaned.substring(1));
+      setContactNumber(cleaned.substring(1, 11));
     } else if (cleaned.length <= 10) {
       setContactNumber(cleaned);
     }
   };
 
-  const handleLogin = () => {
-    console.log('Login:', '+63' + contactNumber, password);
+  const handleLogin = async () => {
+    if (contactNumber.length !== 10 || !password) return;
+    
+    setShowSigningInModal(true);
+    try {
+      const userData = await loginWithContactNumber(contactNumber, password);
+      
+      await setUser(userData);
+      
+      setTimeout(() => {
+        setShowSigningInModal(false);
+        if (userData.status === 'pending') {
+          onNavigateToPending();
+        } else if (userData.status === 'rejected') {
+          Alert.alert('Account Rejected', 'Your account has been rejected. Please contact support.');
+        }
+        // If approved, App.tsx will automatically show HomeScreen via useAuth
+      }, 500);
+    } catch (error: any) {
+      setShowSigningInModal(false);
+      if (error.message.includes('Network error')) {
+        setShowNetworkErrorModal(true);
+      } else {
+        Alert.alert('Login Failed', error.message || 'Invalid credentials');
+      }
+    }
   };
 
   const handleForgotPassword = () => {
@@ -109,7 +139,7 @@ export const LoginScreen = ({ onNavigateToRegister }: LoginScreenProps) => {
           size="lg"
           onPress={handleLogin}
           className="mt-6"
-          disabled={contactNumber.length !== 10}>
+          disabled={contactNumber.length !== 10 || !password}>
           Sign In
         </Button>
         <TouchableOpacity onPress={handleForgotPassword} className="mt-6 items-center">
@@ -130,6 +160,52 @@ export const LoginScreen = ({ onNavigateToRegister }: LoginScreenProps) => {
           </TouchableOpacity>
         </View>
       </Animated.View>
+
+      <Modal
+        visible={showSigningInModal}
+        transparent
+        animationType="fade"
+      >
+        <View className="flex-1 justify-center items-center" style={{ backgroundColor: 'rgba(0,0,0,0.5)' }}>
+          <View className="bg-white rounded-2xl p-8 items-center" style={{ width: 280 }}>
+            <ActivityIndicator size="large" color="#1B365D" />
+            <Text className="text-lg font-semibold text-[#1B365D] mt-4" style={{ fontFamily: 'Inter-SemiBold' }}>
+              Signing In...
+            </Text>
+            <Text className="text-sm text-gray-600 mt-2 text-center" style={{ fontFamily: 'Inter-Medium' }}>
+              Please wait
+            </Text>
+          </View>
+        </View>
+      </Modal>
+
+      <Modal
+        visible={showNetworkErrorModal}
+        transparent
+        animationType="fade"
+      >
+        <View className="flex-1 justify-center items-center px-6" style={{ backgroundColor: 'rgba(0,0,0,0.5)' }}>
+          <View className="bg-white rounded-2xl p-6 items-center" style={{ width: '100%', maxWidth: 320 }}>
+            <View className="bg-red-100 rounded-full p-4 mb-4">
+              <WifiOff size={48} color="#EF4444" />
+            </View>
+            <Text className="text-xl font-semibold text-[#1B365D] mb-2" style={{ fontFamily: 'Inter-SemiBold' }}>
+              Network Error
+            </Text>
+            <Text className="text-sm text-gray-600 text-center mb-6" style={{ fontFamily: 'Inter-Medium' }}>
+              Please check your internet connection and try again.
+            </Text>
+            <Button 
+              variant="primary" 
+              size="lg" 
+              onPress={() => setShowNetworkErrorModal(false)}
+              style={{ width: '100%' }}
+            >
+              Try Again
+            </Button>
+          </View>
+        </View>
+      </Modal>
     </View>
   );
 };
