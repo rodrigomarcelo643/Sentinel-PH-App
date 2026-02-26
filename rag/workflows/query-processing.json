@@ -1,0 +1,89 @@
+{
+  "name": "RAG Query Processing",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "rag-query",
+        "responseMode": "responseNode"
+      },
+      "name": "Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [250, 300]
+    },
+    {
+      "parameters": {
+        "resource": "text",
+        "operation": "createEmbedding",
+        "model": "text-embedding-ada-002",
+        "text": "={{ $json.query }}"
+      },
+      "name": "Generate Query Embedding",
+      "type": "n8n-nodes-base.openAi",
+      "typeVersion": 1,
+      "position": [450, 300]
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT chunk_text, 1 - (embedding <=> $1::vector) as similarity FROM embeddings ORDER BY similarity DESC LIMIT 5"
+      },
+      "name": "Vector Search",
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [650, 300]
+    },
+    {
+      "parameters": {
+        "jsCode": "// ⚠️ INACTIVE - Template Only\n// Format retrieved context\n\nconst results = $input.all();\nconst context = results\n  .map(item => item.json.chunk_text)\n  .join('\\n\\n');\n\nconst originalQuery = $('Webhook').item.json.query;\n\nreturn [{\n  json: {\n    query: originalQuery,\n    context: context,\n    sources: results.map(r => ({\n      content: r.json.chunk_text,\n      relevance: r.json.similarity\n    }))\n  }\n}];"
+      },
+      "name": "Format Context",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 1,
+      "position": [850, 300]
+    },
+    {
+      "parameters": {
+        "resource": "text",
+        "operation": "complete",
+        "model": "gpt-3.5-turbo",
+        "prompt": "Context:\\n{{ $json.context }}\\n\\nQuestion: {{ $json.query }}\\n\\nProvide a helpful answer based on the context above."
+      },
+      "name": "Generate Response",
+      "type": "n8n-nodes-base.openAi",
+      "typeVersion": 1,
+      "position": [1050, 300]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ { answer: $json.choices[0].message.content, sources: $('Format Context').item.json.sources, confidence: 0.85 } }}"
+      },
+      "name": "Response",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [1250, 300]
+    }
+  ],
+  "connections": {
+    "Webhook": {
+      "main": [[{ "node": "Generate Query Embedding", "type": "main", "index": 0 }]]
+    },
+    "Generate Query Embedding": {
+      "main": [[{ "node": "Vector Search", "type": "main", "index": 0 }]]
+    },
+    "Vector Search": {
+      "main": [[{ "node": "Format Context", "type": "main", "index": 0 }]]
+    },
+    "Format Context": {
+      "main": [[{ "node": "Generate Response", "type": "main", "index": 0 }]]
+    },
+    "Generate Response": {
+      "main": [[{ "node": "Response", "type": "main", "index": 0 }]]
+    }
+  },
+  "active": false,
+  "settings": {},
+  "id": "rag-query-processing"
+}
