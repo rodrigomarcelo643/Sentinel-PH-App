@@ -1,10 +1,33 @@
-import { View, Text, ScrollView, TouchableOpacity, Animated } from 'react-native';
+import { View, Text, ScrollView, TouchableOpacity, Animated, Image, Modal, ActivityIndicator } from 'react-native';
 import { useState, useEffect, useRef } from 'react';
-import { Eye, User, AlertTriangle } from 'lucide-react-native';
+import { Eye, User, AlertTriangle, X } from 'lucide-react-native';
+import { useAuth } from '../../context';
+import { collection, query, where, orderBy, getDocs } from 'firebase/firestore';
+import { db } from '../../lib/firebase';
+import { ReportDetailScreen } from '../ReportDetailScreen';
+
+interface Report {
+  id: string;
+  reportType: 'self' | 'observed';
+  symptoms: string[];
+  customSymptom: string;
+  description: string;
+  location: string;
+  barangay: string;
+  proofImageUrl: string;
+  createdAt: any;
+  status: string;
+}
 
 export const HistoryTab = () => {
+  const { user } = useAuth();
   const [filter, setFilter] = useState<'all' | 'self' | 'observed'>('all');
   const [loading, setLoading] = useState(true);
+  const [reports, setReports] = useState<Report[]>([]);
+  const [selectedImage, setSelectedImage] = useState<string | null>(null);
+  const [selectedReport, setSelectedReport] = useState<Report | null>(null);
+  const [displayCount, setDisplayCount] = useState(10);
+  const [loadingMore, setLoadingMore] = useState(false);
   const shimmerAnim = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
@@ -14,27 +37,72 @@ export const HistoryTab = () => {
         Animated.timing(shimmerAnim, { toValue: 0, duration: 1000, useNativeDriver: true }),
       ])
     ).start();
-    setTimeout(() => setLoading(false), 800);
+    fetchReports();
   }, []);
+
+  const fetchReports = async () => {
+    try {
+      const q = query(
+        collection(db, 'symptomReports'),
+        where('userId', '==', user?.uid)
+      );
+      const snapshot = await getDocs(q);
+      const data = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })) as Report[];
+      // Sort by createdAt in memory
+      data.sort((a, b) => {
+        const aTime = a.createdAt?.toDate?.() || new Date(0);
+        const bTime = b.createdAt?.toDate?.() || new Date(0);
+        return bTime.getTime() - aTime.getTime();
+      });
+      setReports(data);
+    } catch (error) {
+      console.error('Failed to fetch reports:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const getTimeAgo = (timestamp: any) => {
+    if (!timestamp) return 'Just now';
+    const date = timestamp.toDate ? timestamp.toDate() : new Date(timestamp);
+    const seconds = Math.floor((new Date().getTime() - date.getTime()) / 1000);
+    
+    if (seconds < 60) return 'Just now';
+    if (seconds < 3600) return `${Math.floor(seconds / 60)}m ago`;
+    if (seconds < 86400) return `${Math.floor(seconds / 3600)}h ago`;
+    if (seconds < 604800) return `${Math.floor(seconds / 86400)}d ago`;
+    if (seconds < 2592000) return `${Math.floor(seconds / 604800)}w ago`;
+    return `${Math.floor(seconds / 2592000)}mo ago`;
+  };
 
   const shimmerOpacity = shimmerAnim.interpolate({ inputRange: [0, 1], outputRange: [0.3, 0.7] });
 
-  const reports = [
-    { id: 1, title: 'Fever & Headache', type: 'self', severity: 'moderate', date: 'Dec 15, 2024', symptoms: 'High fever, severe headache' },
-    { id: 2, title: 'Neighbor - Dengue Symptoms', type: 'observed', severity: 'high', date: 'Dec 14, 2024', symptoms: 'Rash, joint pain, fever' },
-    { id: 3, title: 'Cough & Cold', type: 'self', severity: 'low', date: 'Dec 10, 2024', symptoms: 'Dry cough, runny nose' },
-    { id: 4, title: 'Community Member - Flu', type: 'observed', severity: 'moderate', date: 'Dec 8, 2024', symptoms: 'Fever, body aches' },
-  ];
+  const filtered = filter === 'all' ? reports : reports.filter(r => r.reportType === filter);
+  const displayedReports = filtered.slice(0, displayCount);
+  const hasMore = displayedReports.length < filtered.length;
 
-  const filtered = filter === 'all' ? reports : reports.filter(r => r.type === filter);
-
-  const getSeverityColor = (severity: string) => {
-    switch(severity) {
-      case 'high': return { bg: '#FEE2E2', text: '#DC2626', icon: '#EF4444' };
-      case 'moderate': return { bg: '#FEF3C7', text: '#D97706', icon: '#F59E0B' };
-      case 'low': return { bg: '#DBEAFE', text: '#1D4ED8', icon: '#3B82F6' };
-      default: return { bg: '#F3F4F6', text: '#6B7280', icon: '#9CA3AF' };
+  const handleLoadMore = () => {
+    if (!loadingMore && hasMore) {
+      setLoadingMore(true);
+      setTimeout(() => {
+        setDisplayCount(prev => prev + 10);
+        setLoadingMore(false);
+      }, 500);
     }
+  };
+
+  const handleScroll = (event: any) => {
+    const { layoutMeasurement, contentOffset, contentSize } = event.nativeEvent;
+    const paddingToBottom = 20;
+    if (layoutMeasurement.height + contentOffset.y >= contentSize.height - paddingToBottom) {
+      handleLoadMore();
+    }
+  };
+
+  const getSeverityColor = (symptomsCount: number) => {
+    if (symptomsCount >= 4) return { bg: '#FEE2E2', text: '#DC2626', icon: '#EF4444' };
+    if (symptomsCount >= 2) return { bg: '#FEF3C7', text: '#D97706', icon: '#F59E0B' };
+    return { bg: '#DBEAFE', text: '#1D4ED8', icon: '#3B82F6' };
   };
 
   if (loading) {
@@ -51,6 +119,10 @@ export const HistoryTab = () => {
         </View>
       </View>
     );
+  }
+
+  if (selectedReport) {
+    return <ReportDetailScreen report={selectedReport} onBack={() => setSelectedReport(null)} />;
   }
 
   return (
@@ -78,36 +150,79 @@ export const HistoryTab = () => {
         </ScrollView>
       </View>
 
-      <ScrollView style={{ flex: 1 }} contentContainerStyle={{ padding: 20 }}>
-        {filtered.map((report) => {
-          const colors = getSeverityColor(report.severity);
-          return (
-            <TouchableOpacity key={report.id} style={{ backgroundColor: 'white', borderRadius: 12, padding: 16, marginBottom: 12, shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.1, shadowRadius: 4, elevation: 2 }}>
-              <View style={{ flexDirection: 'row', alignItems: 'flex-start' }}>
-                <View style={{ width: 48, height: 48, borderRadius: 24, backgroundColor: colors.bg, alignItems: 'center', justifyContent: 'center', marginRight: 12 }}>
-                  {report.type === 'self' ? <User size={24} color={colors.icon} strokeWidth={2} /> : <Eye size={24} color={colors.icon} strokeWidth={2} />}
-                </View>
-                <View style={{ flex: 1 }}>
-                  <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 4 }}>
-                    <Text className="text-[#1B365D] font-semibold text-base" style={{ fontFamily: 'Inter-SemiBold', flex: 1 }}>{report.title}</Text>
-                    <View style={{ paddingHorizontal: 8, paddingVertical: 3, borderRadius: 6, backgroundColor: colors.bg }}>
-                      <Text style={{ fontSize: 10, color: colors.text, fontFamily: 'Inter-SemiBold' }}>{report.severity.toUpperCase()}</Text>
+      <ScrollView 
+        style={{ flex: 1 }} 
+        contentContainerStyle={{ padding: 20 }}
+        onScroll={handleScroll}
+        scrollEventThrottle={400}
+      >
+        {filtered.length === 0 ? (
+          <View style={{ alignItems: 'center', paddingTop: 40 }}>
+            <AlertTriangle size={48} color="#9CA3AF" />
+            <Text style={{ color: '#6B7280', fontSize: 16, fontFamily: 'Inter-Medium', marginTop: 12 }}>No reports found</Text>
+          </View>
+        ) : (
+          <>
+            {displayedReports.map((report) => {
+            const allSymptoms = [...report.symptoms, report.customSymptom].filter(Boolean);
+            const colors = getSeverityColor(allSymptoms.length);
+            const title = report.reportType === 'self' ? allSymptoms.slice(0, 2).join(' & ') : `Observed - ${allSymptoms[0] || 'Symptoms'}`;
+            
+            return (
+              <TouchableOpacity 
+                key={report.id} 
+                onPress={() => setSelectedReport(report)}
+                style={{ backgroundColor: 'white', borderRadius: 12, padding: 16, marginBottom: 12, shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.1, shadowRadius: 4, elevation: 2 }}
+              >
+                <View style={{ flexDirection: 'row', alignItems: 'flex-start' }}>
+                  <View style={{ width: 48, height: 48, borderRadius: 24, backgroundColor: colors.bg, alignItems: 'center', justifyContent: 'center', marginRight: 12 }}>
+                    {report.reportType === 'self' ? <User size={24} color={colors.icon} strokeWidth={2} /> : <Eye size={24} color={colors.icon} strokeWidth={2} />}
+                  </View>
+                  <View style={{ flex: 1 }}>
+                    <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 4 }}>
+                      <Text className="text-[#1B365D] font-semibold text-base" style={{ fontFamily: 'Inter-SemiBold', flex: 1 }}>{title}</Text>
+                      <View style={{ paddingHorizontal: 8, paddingVertical: 3, borderRadius: 6, backgroundColor: colors.bg }}>
+                        <Text style={{ fontSize: 10, color: colors.text, fontFamily: 'Inter-SemiBold' }}>{allSymptoms.length} SYMPTOMS</Text>
+                      </View>
+                    </View>
+                    <Text className="text-gray-600 text-sm" style={{ fontFamily: 'Inter-Medium' }} numberOfLines={2}>{report.description}</Text>
+                    {report.proofImageUrl && (
+                      <TouchableOpacity onPress={() => setSelectedImage(report.proofImageUrl)} style={{ marginTop: 8 }}>
+                        <Image source={{ uri: report.proofImageUrl }} style={{ width: 80, height: 80, borderRadius: 8 }} resizeMode="cover" />
+                      </TouchableOpacity>
+                    )}
+                    <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 8, gap: 8 }}>
+                      <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
+                        {report.reportType === 'self' ? <User size={12} color="#9CA3AF" /> : <Eye size={12} color="#9CA3AF" />}
+                        <Text className="text-gray-400 text-xs" style={{ fontFamily: 'Inter-Medium' }}>{report.reportType === 'self' ? 'Self-reported' : 'Observed'}</Text>
+                      </View>
+                      <Text className="text-gray-400 text-xs" style={{ fontFamily: 'Inter-Medium' }}>• {getTimeAgo(report.createdAt)}</Text>
                     </View>
                   </View>
-                  <Text className="text-gray-600 text-sm" style={{ fontFamily: 'Inter-Medium' }}>{report.symptoms}</Text>
-                  <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 8, gap: 8 }}>
-                    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
-                      {report.type === 'self' ? <User size={12} color="#9CA3AF" /> : <Eye size={12} color="#9CA3AF" />}
-                      <Text className="text-gray-400 text-xs" style={{ fontFamily: 'Inter-Medium' }}>{report.type === 'self' ? 'Self-reported' : 'Observed'}</Text>
-                    </View>
-                    <Text className="text-gray-400 text-xs" style={{ fontFamily: 'Inter-Medium' }}>• {report.date}</Text>
-                  </View>
                 </View>
-              </View>
-            </TouchableOpacity>
-          );
-        })}
+              </TouchableOpacity>
+            );
+          })}
+          {loadingMore && (
+            <View style={{ paddingVertical: 20, alignItems: 'center' }}>
+              <ActivityIndicator size="small" color="#1B365D" />
+            </View>
+          )}
+          </>
+        )}
       </ScrollView>
+
+      {/* Image Viewer Modal */}
+      <Modal visible={!!selectedImage} transparent animationType="fade">
+        <View style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.9)', justifyContent: 'center', alignItems: 'center' }}>
+          <TouchableOpacity onPress={() => setSelectedImage(null)} style={{ position: 'absolute', top: 50, right: 20, zIndex: 10, backgroundColor: 'rgba(255,255,255,0.2)', borderRadius: 20, padding: 8 }}>
+            <X size={24} color="white" strokeWidth={2} />
+          </TouchableOpacity>
+          {selectedImage && (
+            <Image source={{ uri: selectedImage }} style={{ width: '90%', height: '70%', borderRadius: 12 }} resizeMode="contain" />
+          )}
+        </View>
+      </Modal>
     </View>
   );
 };
