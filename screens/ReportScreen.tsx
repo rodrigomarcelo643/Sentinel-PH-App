@@ -1,6 +1,6 @@
 import { View, Text, TouchableOpacity, Platform, ActivityIndicator, Animated, Modal } from 'react-native';
 import { useState, useEffect, useRef } from 'react';
-import { X, ChevronLeft } from 'lucide-react-native';
+import { X, ChevronLeft, CheckCircle, AlertCircle } from 'lucide-react-native';
 import { ReportTypeStep, SymptomsStep, DetailsStep, ProofCamera } from '../components/report';
 import { useAuth } from '../context';
 import { uploadToCloudinary } from '../services';
@@ -43,6 +43,9 @@ export const ReportScreen = ({ onBack }: ReportScreenProps) => {
   const [barangay, setBarangay] = useState('');
   const [proofImage, setProofImage] = useState<string | null>(null);
   const [showProofCamera, setShowProofCamera] = useState(false);
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
+  const [showErrorModal, setShowErrorModal] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
 
   const totalSteps = 3;
 
@@ -103,12 +106,12 @@ export const ReportScreen = ({ onBack }: ReportScreenProps) => {
         createdAt: serverTimestamp(),
       });
 
-      alert('Report submitted successfully!');
-      onBack();
-    } catch (error) {
-      alert('Failed to submit report');
-    } finally {
       setLoading(false);
+      setShowSuccessModal(true);
+    } catch (error: any) {
+      setLoading(false);
+      setErrorMessage(error.message || 'Failed to submit report. Please try again.');
+      setShowErrorModal(true);
     }
   };
 
@@ -223,6 +226,55 @@ export const ReportScreen = ({ onBack }: ReportScreenProps) => {
           }}
           onClose={() => setShowProofCamera(false)}
         />
+      </Modal>
+
+      {/* Success Modal */}
+      <Modal visible={showSuccessModal} transparent animationType="fade">
+        <View style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'center', alignItems: 'center', padding: 20 }}>
+          <View style={{ backgroundColor: 'white', borderRadius: 16, padding: 24, width: '100%', maxWidth: 320, alignItems: 'center' }}>
+            <View style={{ width: 64, height: 64, borderRadius: 32, backgroundColor: '#DCFCE7', alignItems: 'center', justifyContent: 'center', marginBottom: 16 }}>
+              <CheckCircle size={36} color="#16A34A" strokeWidth={2} />
+            </View>
+            <Text style={{ fontSize: 20, fontWeight: 'bold', color: '#1F2937', fontFamily: 'Inter-SemiBold', marginBottom: 8, textAlign: 'center' }}>
+              Report Submitted!
+            </Text>
+            <Text style={{ fontSize: 14, color: '#6B7280', textAlign: 'center', fontFamily: 'Inter-Medium', marginBottom: 24 }}>
+              Your symptom report has been submitted successfully. We'll review it shortly.
+            </Text>
+            <TouchableOpacity
+              onPress={() => {
+                setShowSuccessModal(false);
+                onBack();
+              }}
+              style={{ backgroundColor: '#1B365D', borderRadius: 12, padding: 14, width: '100%', alignItems: 'center' }}
+            >
+              <Text style={{ color: 'white', fontSize: 15, fontWeight: '600', fontFamily: 'Inter-SemiBold' }}>Done</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
+
+      {/* Error Modal */}
+      <Modal visible={showErrorModal} transparent animationType="fade">
+        <View style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'center', alignItems: 'center', padding: 20 }}>
+          <View style={{ backgroundColor: 'white', borderRadius: 16, padding: 24, width: '100%', maxWidth: 320, alignItems: 'center' }}>
+            <View style={{ width: 64, height: 64, borderRadius: 32, backgroundColor: '#FEE2E2', alignItems: 'center', justifyContent: 'center', marginBottom: 16 }}>
+              <AlertCircle size={36} color="#DC2626" strokeWidth={2} />
+            </View>
+            <Text style={{ fontSize: 20, fontWeight: 'bold', color: '#1F2937', fontFamily: 'Inter-SemiBold', marginBottom: 8, textAlign: 'center' }}>
+              Submission Failed
+            </Text>
+            <Text style={{ fontSize: 14, color: '#6B7280', textAlign: 'center', fontFamily: 'Inter-Medium', marginBottom: 24 }}>
+              {errorMessage}
+            </Text>
+            <TouchableOpacity
+              onPress={() => setShowErrorModal(false)}
+              style={{ backgroundColor: '#1B365D', borderRadius: 12, padding: 14, width: '100%', alignItems: 'center' }}
+            >
+              <Text style={{ color: 'white', fontSize: 15, fontWeight: '600', fontFamily: 'Inter-SemiBold' }}>Try Again</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
       </Modal>
     </Animated.View>
   );
