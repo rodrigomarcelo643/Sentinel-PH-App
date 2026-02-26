@@ -2,42 +2,54 @@ import { StatusBar } from 'expo-status-bar';
 import { useState, useEffect } from 'react';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { SplashScreen } from './components/screens/SplashScreen';
-import { LoginScreen, MultiStepRegisterScreen } from './screens';
-import { AuthProvider } from './context';
+import { LoginScreen, MultiStepRegisterScreen, PendingApprovalScreen, HomeScreen } from './screens';
+import { AuthProvider, useAuth } from './context';
 import { useFonts } from 'expo-font';
 import './global.css';
 
-export default function App() {
+const AppContent = () => {
   const [showSplash, setShowSplash] = useState(true);
-  const [currentScreen, setCurrentScreen] = useState<'login' | 'register'>('login');
+  const [currentScreen, setCurrentScreen] = useState<'login' | 'register' | 'pending'>('login');
+  const { user, loading } = useAuth();
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setShowSplash(false);
+    }, 3000);
+    return () => clearTimeout(timer);
+  }, []);
+
+  if (showSplash || loading) return <SplashScreen />;
+
+  // Redirect based on user status
+  if (user?.status === 'approved') return <HomeScreen />;
+  if (user?.status === 'pending') return <PendingApprovalScreen onBackToLogin={() => setCurrentScreen('login')} />;
+
+  return currentScreen === 'login' ? (
+    <LoginScreen 
+      onNavigateToRegister={() => setCurrentScreen('register')} 
+      onNavigateToPending={() => setCurrentScreen('pending')}
+    />
+  ) : currentScreen === 'register' ? (
+    <MultiStepRegisterScreen onNavigateToLogin={() => setCurrentScreen('login')} />
+  ) : (
+    <PendingApprovalScreen onBackToLogin={() => setCurrentScreen('login')} />
+  );
+};
+
+export default function App() {
   const [fontsLoaded] = useFonts({
     'Inter-Light': require('./assets/fonts/Inter_18pt-Light.ttf'),
     'Inter-Medium': require('./assets/fonts/Inter_18pt-Medium.ttf'),
     'Inter-SemiBold': require('./assets/fonts/Inter_24pt-SemiBold.ttf'),
   });
 
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setShowSplash(false);
-    }, 3000);
-
-    return () => clearTimeout(timer);
-  }, []);
-
-  if (!fontsLoaded) {
-    return null;
-  }
+  if (!fontsLoaded) return null;
 
   return (
     <AuthProvider>
       <SafeAreaProvider>
-        {showSplash ? (
-          <SplashScreen />
-        ) : currentScreen === 'login' ? (
-          <LoginScreen onNavigateToRegister={() => setCurrentScreen('register')} />
-        ) : (
-          <MultiStepRegisterScreen onNavigateToLogin={() => setCurrentScreen('login')} />
-        )}
+        <AppContent />
         <StatusBar style="light" />
       </SafeAreaProvider>
     </AuthProvider>
