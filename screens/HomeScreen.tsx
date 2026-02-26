@@ -3,6 +3,7 @@ import { useState, useRef } from 'react';
 import { Home, History, MapPin, User, Plus, Bell, Menu } from 'lucide-react-native';
 import { HomeTab, HistoryTab, MapTab, ProfileTab } from './tabs';
 import { ReportScreen } from './ReportScreen';
+import { AiDoctorAssistantScreen } from './AiDoctorAssistantScreen';
 import { Drawer } from '../components/ui';
 import { useAuth } from '../context';
 import Svg, { Path } from 'react-native-svg';
@@ -10,7 +11,7 @@ import Svg, { Path } from 'react-native-svg';
 const { width } = Dimensions.get('window');
 
 export const HomeScreen = () => {
-  const [activeTab, setActiveTab] = useState<'home' | 'history' | 'map' | 'profile' | 'report'>('home');
+  const [activeTab, setActiveTab] = useState<'home' | 'history' | 'map' | 'profile' | 'report' | 'aiDoctor'>('home');
   const [drawerOpen, setDrawerOpen] = useState(false);
   const { user } = useAuth();
   const drawerAnim = useRef(new Animated.Value(-width * 0.7)).current;
@@ -35,14 +36,15 @@ export const HomeScreen = () => {
   const renderContent = () => {
     switch (activeTab) {
       case 'home': return <HomeTab />;
-      case 'history': return <HistoryTab />;
+      case 'history': return <HistoryTab onNavigateToAiDoctor={() => setActiveTab('aiDoctor')} />;
       case 'map': return <MapTab />;
       case 'profile': return <ProfileTab />;
       case 'report': return <ReportScreen onBack={() => setActiveTab('home')} />;
+      case 'aiDoctor': return <AiDoctorAssistantScreen onBack={() => setActiveTab('history')} />;
     }
   };
 
-  if (activeTab === 'report') return renderContent();
+  if (activeTab === 'report' || activeTab === 'aiDoctor') return renderContent();
 
   const center = width / 2;
   const curveWidth = 65;
