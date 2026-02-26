@@ -1,4 +1,4 @@
-import { View, Text, Modal, TouchableOpacity } from 'react-native';
+import { View, Text, Modal, TouchableOpacity, ActivityIndicator } from 'react-native';
 import { IDScannerCamera } from '../camera/IDScannerCamera';
 import { SelfieCamera } from '../camera/SelfieCamera';
 
@@ -52,8 +52,8 @@ export const RegistrationModals = ({
       <Modal visible={isRegistering} transparent animationType="fade">
         <View style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', alignItems: 'center', justifyContent: 'center', padding: 24 }}>
           <View style={{ backgroundColor: '#fff', borderRadius: 16, padding: 32, alignItems: 'center', width: 280 }}>
-            <View style={{ width: 64, height: 64, borderWidth: 4, borderColor: '#d1d5db', borderTopColor: '#1B365D', borderRadius: 32, marginBottom: 24 }} />
-            <Text style={{ color: '#1B365D', fontSize: 18, fontWeight: '600', textAlign: 'center', fontFamily: 'Inter-SemiBold', marginBottom: 8 }}>
+            <ActivityIndicator size="large" color="#1B365D" />
+            <Text style={{ color: '#1B365D', fontSize: 18, fontWeight: '600', textAlign: 'center', fontFamily: 'Inter-SemiBold', marginTop: 24, marginBottom: 8 }}>
               Registering...
             </Text>
             <Text style={{ color: '#6b7280', fontSize: 14, textAlign: 'center', fontFamily: 'Inter-Medium' }}>
