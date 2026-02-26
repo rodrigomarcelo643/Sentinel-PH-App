@@ -1,0 +1,76 @@
+{
+  "name": "RAG Document Ingestion",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "ingest-document",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "name": "Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [250, 300]
+    },
+    {
+      "parameters": {
+        "jsCode": "// ⚠️ INACTIVE - Template Only\n// Split document into chunks\n\nconst document = $input.item.json;\nconst chunkSize = 1000;\nconst overlap = 200;\n\nconst chunks = [];\nconst text = document.content;\n\nfor (let i = 0; i < text.length; i += chunkSize - overlap) {\n  chunks.push({\n    documentId: document.id,\n    chunkIndex: Math.floor(i / (chunkSize - overlap)),\n    chunkText: text.slice(i, i + chunkSize),\n    metadata: document.metadata\n  });\n}\n\nreturn chunks.map(chunk => ({ json: chunk }));"
+      },
+      "name": "Text Splitter",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 1,
+      "position": [450, 300]
+    },
+    {
+      "parameters": {
+        "resource": "text",
+        "operation": "createEmbedding",
+        "model": "text-embedding-ada-002",
+        "text": "={{ $json.chunkText }}"
+      },
+      "name": "Generate Embeddings",
+      "type": "n8n-nodes-base.openAi",
+      "typeVersion": 1,
+      "position": [650, 300]
+    },
+    {
+      "parameters": {
+        "operation": "insert",
+        "table": "embeddings",
+        "columns": "document_id,chunk_index,chunk_text,embedding"
+      },
+      "name": "Store in Supabase",
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [850, 300]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ { success: true, chunks: $items().length } }}"
+      },
+      "name": "Response",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [1050, 300]
+    }
+  ],
+  "connections": {
+    "Webhook": {
+      "main": [[{ "node": "Text Splitter", "type": "main", "index": 0 }]]
+    },
+    "Text Splitter": {
+      "main": [[{ "node": "Generate Embeddings", "type": "main", "index": 0 }]]
+    },
+    "Generate Embeddings": {
+      "main": [[{ "node": "Store in Supabase", "type": "main", "index": 0 }]]
+    },
+    "Store in Supabase": {
+      "main": [[{ "node": "Response", "type": "main", "index": 0 }]]
+    }
+  },
+  "active": false,
+  "settings": {},
+  "id": "rag-document-ingestion"
+}
