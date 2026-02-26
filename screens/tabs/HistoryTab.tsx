@@ -1,6 +1,6 @@
 import { View, Text, ScrollView, TouchableOpacity, Animated, Image, Modal, ActivityIndicator } from 'react-native';
 import { useState, useEffect, useRef } from 'react';
-import { Eye, User, AlertTriangle, X } from 'lucide-react-native';
+import { Eye, User, AlertTriangle, X, Bot, Sparkles } from 'lucide-react-native';
 import { useAuth } from '../../context';
 import { collection, query, where, orderBy, getDocs } from 'firebase/firestore';
 import { db } from '../../lib/firebase';
@@ -19,7 +19,11 @@ interface Report {
   status: string;
 }
 
-export const HistoryTab = () => {
+interface HistoryTabProps {
+  onNavigateToAiDoctor: () => void;
+}
+
+export const HistoryTab = ({ onNavigateToAiDoctor }: HistoryTabProps) => {
   const { user } = useAuth();
   const [filter, setFilter] = useState<'all' | 'self' | 'observed'>('all');
   const [loading, setLoading] = useState(true);
@@ -29,12 +33,19 @@ export const HistoryTab = () => {
   const [displayCount, setDisplayCount] = useState(10);
   const [loadingMore, setLoadingMore] = useState(false);
   const shimmerAnim = useRef(new Animated.Value(0)).current;
+  const pulseAnim = useRef(new Animated.Value(1)).current;
 
   useEffect(() => {
     Animated.loop(
       Animated.sequence([
         Animated.timing(shimmerAnim, { toValue: 1, duration: 1000, useNativeDriver: true }),
         Animated.timing(shimmerAnim, { toValue: 0, duration: 1000, useNativeDriver: true }),
+      ])
+    ).start();
+    Animated.loop(
+      Animated.sequence([
+        Animated.timing(pulseAnim, { toValue: 1.05, duration: 1500, useNativeDriver: true }),
+        Animated.timing(pulseAnim, { toValue: 1, duration: 1500, useNativeDriver: true }),
       ])
     ).start();
     fetchReports();
@@ -131,6 +142,47 @@ export const HistoryTab = () => {
       <View style={{ backgroundColor: '#1B365D', paddingHorizontal: 20, paddingTop: 20, paddingBottom: 24 }}>
         <Text className="text-white text-xl font-bold" style={{ fontFamily: 'Inter-SemiBold' }}>Symptom Reports</Text>
         <Text className="text-white text-sm mt-1" style={{ fontFamily: 'Inter-Medium' }}>Track your symptoms & community health</Text>
+        
+        {/* AI Doctor Assistant Card */}
+        <Animated.View style={{ transform: [{ scale: pulseAnim }] }}>
+          <TouchableOpacity
+            onPress={onNavigateToAiDoctor}
+            style={{
+              backgroundColor: '#20A0D8',
+              borderRadius: 16,
+              padding: 16,
+              marginTop: 16,
+              flexDirection: 'row',
+              alignItems: 'center',
+              shadowColor: '#000',
+              shadowOffset: { width: 0, height: 4 },
+              shadowOpacity: 0.3,
+              shadowRadius: 8,
+              elevation: 5
+            }}
+            activeOpacity={0.8}
+          >
+            <Image
+              source={require('../../assets/images/ai_doctor_icon.png')}
+              style={{ width: 48, height: 48, borderRadius: 24, marginRight: 12 }}
+              resizeMode="cover"
+            />
+            <View style={{ flex: 1 }}>
+              <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 2 }}>
+                <Text style={{ color: 'white', fontSize: 16, fontFamily: 'Inter-SemiBold' }}>
+                  AI Health Assistant
+                </Text>
+                <Sparkles size={14} color="#FCD34D" style={{ marginLeft: 6 }} />
+              </View>
+              <Text style={{ color: 'rgba(255,255,255,0.9)', fontSize: 12, fontFamily: 'Inter-Medium' }}>
+                Get insights based on your symptoms
+              </Text>
+              <Text style={{ color: 'rgba(255,255,255,0.7)', fontSize: 10, fontFamily: 'Inter-Medium', marginTop: 4 }}>
+                ⚠️ For guidance only - Not a real doctor
+              </Text>
+            </View>
+          </TouchableOpacity>
+        </Animated.View>
       </View>
 
       {/* Filter Tabs */}
