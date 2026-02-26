@@ -1,7 +1,7 @@
 import { View, Text, ScrollView, Image, TouchableOpacity, Modal } from 'react-native';
 import { useState } from 'react';
 import { useAuth } from '../../context';
-import { Mail, Phone, MapPin, FileText, Camera, LogOut, CheckCircle, Shield, AlertTriangle, X } from 'lucide-react-native';
+import { Mail, Phone, MapPin, FileText, Camera, LogOut, CheckCircle, Shield, AlertTriangle, X, Users, BadgeCheck } from 'lucide-react-native';
 
 export const ProfileTab = () => {
   const { user, logout } = useAuth();
@@ -78,11 +78,23 @@ export const ProfileTab = () => {
           <Text style={{ fontSize: 24, fontWeight: 'bold', color: 'white', fontFamily: 'Inter-SemiBold', textAlign: 'center' }}>
             {user?.firstName} {user?.middleInitial}. {user?.lastName}
           </Text>
-          <View style={{ backgroundColor: statusColors.bg, paddingHorizontal: 16, paddingVertical: 6, borderRadius: 20, marginTop: 12, flexDirection: 'row', alignItems: 'center', gap: 6 }}>
-            {user?.status === 'approved' && <CheckCircle size={14} color={statusColors.text} strokeWidth={2.5} />}
-            <Text style={{ color: statusColors.text, fontSize: 13, fontWeight: '700', fontFamily: 'Inter-SemiBold' }}>
-              {user?.status === 'approved' ? 'VERIFIED' : user?.status?.toUpperCase()}
-            </Text>
+          
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginTop: 12 }}>
+            {user?.communityRole && (
+              <View style={{ backgroundColor: 'rgba(255,255,255,0.2)', paddingHorizontal: 12, paddingVertical: 6, borderRadius: 16, flexDirection: 'row', alignItems: 'center', gap: 6, borderWidth: 1, borderColor: 'rgba(255,255,255,0.3)' }}>
+                <Users size={14} color="#FCD34D" strokeWidth={2} />
+                <Text style={{ color: 'white', fontSize: 12, fontWeight: '600', fontFamily: 'Inter-SemiBold' }}>
+                  {user.communityRole}
+                </Text>
+              </View>
+            )}
+            
+            <View style={{ backgroundColor: statusColors.bg, paddingHorizontal: 16, paddingVertical: 6, borderRadius: 20, flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+              {user?.status === 'approved' && <BadgeCheck size={16} color={statusColors.text} strokeWidth={2.5} />}
+              <Text style={{ color: statusColors.text, fontSize: 13, fontWeight: '700', fontFamily: 'Inter-SemiBold' }}>
+                {user?.status === 'approved' ? 'Verified' : user?.status?.charAt(0).toUpperCase() + user?.status?.slice(1)}
+              </Text>
+            </View>
           </View>
         </View>
       </View>
