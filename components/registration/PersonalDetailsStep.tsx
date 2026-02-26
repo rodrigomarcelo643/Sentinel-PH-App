@@ -1,5 +1,8 @@
-import { View, Text, TextInput, Animated } from 'react-native';
+import { View, Text, TextInput, Animated, TouchableOpacity, ActivityIndicator } from 'react-native';
 import { Input } from '../ui';
+import { MapPin, ChevronDown } from 'lucide-react-native';
+import { getCurrentLocation } from '../../services';
+import { useEffect, useState } from 'react';
 
 interface PersonalDetailsStepProps {
   fadeAnim: Animated.Value;
@@ -19,8 +22,27 @@ interface PersonalDetailsStepProps {
   setMunicipality: (value: string) => void;
   barangay: string;
   setBarangay: (value: string) => void;
+  communityRole: string;
+  setCommunityRole: (value: string) => void;
+  customRole: string;
+  setCustomRole: (value: string) => void;
+  showRoleDropdown: boolean;
+  setShowRoleDropdown: (value: boolean) => void;
   errors: string[];
 }
+
+const COMMUNITY_ROLES = [
+  'Resident',
+  'Sari-Sari Store Owner / Market Vendor',
+  'Tricycle Driver / PUV Operator',
+  'Barangay Tanod / Leader',
+  'Religious Leader / Church Worker',
+  'Traditional Healer / Hilot',
+  'Barangay Health Worker',
+  'Pharmacy Staff',
+  'Pharmacy Owner',
+  'Other (Specify)',
+];
 
 export const PersonalDetailsStep = ({
   fadeAnim,
@@ -40,8 +62,33 @@ export const PersonalDetailsStep = ({
   setMunicipality,
   barangay,
   setBarangay,
+  communityRole,
+  setCommunityRole,
+  customRole,
+  setCustomRole,
+  showRoleDropdown,
+  setShowRoleDropdown,
   errors,
 }: PersonalDetailsStepProps) => {
+  const [loadingLocation, setLoadingLocation] = useState(false);
+
+  useEffect(() => {
+    handleAutoFillLocation();
+  }, []);
+
+  const handleAutoFillLocation = async () => {
+    setLoadingLocation(true);
+    try {
+      const location = await getCurrentLocation();
+      setRegion(location.region);
+      setMunicipality(location.municipality);
+      setBarangay(location.barangay);
+    } catch (error) {
+      console.error('Failed to get location:', error);
+    } finally {
+      setLoadingLocation(false);
+    }
+  };
   return (
     <Animated.View style={{ opacity: fadeAnim }}>
       <Text className="text-lg font-semibold text-[#1B365D] mb-4" style={{ fontFamily: 'Inter-SemiBold' }}>
@@ -74,6 +121,58 @@ export const PersonalDetailsStep = ({
         maxLength={2}
         autoCapitalize="characters"
       />
+
+      <View className="mb-3">
+        <Text className="text-gray-700 text-sm mb-2 font-medium" style={{ fontFamily: 'Inter-Medium' }}>
+          Community Role <Text style={{ color: '#ef4444' }}>*</Text>
+        </Text>
+        <TouchableOpacity
+          onPress={() => setShowRoleDropdown(!showRoleDropdown)}
+          className="flex-row items-center justify-between rounded-xl border-2 border-gray-300 bg-white px-4 py-4"
+        >
+          <Text className="text-base text-gray-800" style={{ fontFamily: 'Inter-Medium' }}>
+            {communityRole || 'Select your role'}
+          </Text>
+          <ChevronDown size={20} color="#6b7280" />
+        </TouchableOpacity>
+        {showRoleDropdown && (
+          <View className="mt-2 rounded-xl border-2 border-gray-300 bg-white overflow-hidden">
+            {COMMUNITY_ROLES.map((role) => (
+              <TouchableOpacity
+                key={role}
+                onPress={() => {
+                  setCommunityRole(role);
+                  setShowRoleDropdown(false);
+                  if (role !== 'Other (Specify)') {
+                    setCustomRole('');
+                  }
+                }}
+                className="px-4 py-3 border-b border-gray-200"
+              >
+                <Text className="text-base text-gray-800" style={{ fontFamily: 'Inter-Medium' }}>
+                  {role}
+                </Text>
+              </TouchableOpacity>
+            ))}
+          </View>
+        )}
+        {errors.includes('Community Role is required') && (
+          <Text className="text-red-500 text-sm mt-1" style={{ fontFamily: 'Inter-Medium' }}>
+            Community Role is required
+          </Text>
+        )}
+      </View>
+
+      {communityRole === 'Other (Specify)' && (
+        <Input
+          label="Specify Role *"
+          placeholder="Enter your community role"
+          value={customRole}
+          onChangeText={setCustomRole}
+          autoCapitalize="words"
+          error={errors.includes('Custom role is required') ? 'Custom role is required' : undefined}
+        />
+      )}
 
       <Text className="text-lg font-semibold text-[#1B365D] mb-4 mt-6" style={{ fontFamily: 'Inter-SemiBold' }}>
         Contact Information
@@ -118,9 +217,19 @@ export const PersonalDetailsStep = ({
         error={errors.includes('Email is required') ? 'Email is required' : undefined}
       />
 
-      <Text className="text-lg font-semibold text-[#1B365D] mb-4 mt-6" style={{ fontFamily: 'Inter-SemiBold' }}>
-        Full Address
-      </Text>
+      <View className="flex-row items-center justify-between mb-4 mt-6">
+        <Text className="text-lg font-semibold text-[#1B365D]" style={{ fontFamily: 'Inter-SemiBold' }}>
+          Full Address
+        </Text>
+        {loadingLocation && (
+          <View className="flex-row items-center">
+            <ActivityIndicator size="small" color="#20A0D8" />
+            <Text className="text-[#20A0D8] text-sm ml-2 font-medium" style={{ fontFamily: 'Inter-Medium' }}>
+              Getting location...
+            </Text>
+          </View>
+        )}
+      </View>
 
       <Input
         label="Region *"
