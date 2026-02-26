@@ -1,57 +1,60 @@
-import { createContext, useContext, useState, ReactNode } from 'react';
-
-interface User {
-  uid: string;
-  email: string;
-  displayName?: string;
-}
+import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { onAuthStateChanged } from 'firebase/auth';
+import { auth } from '../lib/firebase';
+import { UserData } from '../services';
 
 interface AuthContextType {
-  user: User | null;
+  user: UserData | null;
   loading: boolean;
-  login: (email: string, password: string) => Promise<void>;
-  register: (email: string, password: string) => Promise<void>;
+  setUser: (user: UserData | null) => void;
   logout: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
-  const [user, setUser] = useState<User | null>(null);
-  const [loading, setLoading] = useState(false);
+  const [user, setUser] = useState<UserData | null>(null);
+  const [loading, setLoading] = useState(true);
 
-  const register = async (email: string, password: string) => {
-    setLoading(true);
-    try {
-      // TODO: Implement Firebase registration when credentials are configured
-      console.log('Register:', email, password);
-    } finally {
+  useEffect(() => {
+    // Load user from AsyncStorage
+    const loadUser = async () => {
+      const stored = await AsyncStorage.getItem('user');
+      if (stored) setUser(JSON.parse(stored));
       setLoading(false);
-    }
-  };
+    };
+    
+    loadUser();
 
-  const login = async (email: string, password: string) => {
-    setLoading(true);
-    try {
-      // TODO: Implement Firebase login when credentials are configured
-      console.log('Login:', email, password);
-    } finally {
-      setLoading(false);
+    // Listen to auth state changes
+    const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
+      if (!firebaseUser) {
+        setUser(null);
+        await AsyncStorage.removeItem('user');
+      }
+    });
+
+    return unsubscribe;
+  }, []);
+
+  const updateUser = async (userData: UserData | null) => {
+    setUser(userData);
+    if (userData) {
+      await AsyncStorage.setItem('user', JSON.stringify(userData));
+    } else {
+      await AsyncStorage.removeItem('user');
     }
   };
 
   const logout = async () => {
-    setLoading(true);
-    try {
-      // TODO: Implement Firebase logout when credentials are configured
-      setUser(null);
-    } finally {
-      setLoading(false);
-    }
+    await auth.signOut();
+    setUser(null);
+    await AsyncStorage.removeItem('user');
   };
 
   return (
-    <AuthContext.Provider value={{ user, loading, login, register, logout }}>
+    <AuthContext.Provider value={{ user, loading, setUser: updateUser, logout }}>
       {children}
     </AuthContext.Provider>
   );
