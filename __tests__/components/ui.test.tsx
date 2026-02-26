@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, fireEvent } from '@testing-library/react-native';
+  import { render, fireEvent } from '@testing-library/react-native';
 import { Button } from '../../components/ui/Button';
 import { Input } from '../../components/ui/Input';
 
@@ -27,7 +27,7 @@ describe('UI Components', () => {
     });
 
     it('shows loading state', () => {
-      const { getByTestId } = render(<Button loading>Loading</Button>);
+      const { getByTestId } = render(<Button>Loading</Button>);
       expect(getByTestId('button-spinner')).toBeTruthy();
     });
 
