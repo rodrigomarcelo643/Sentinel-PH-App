@@ -1,11 +1,15 @@
-import { View, Text, ScrollView, Image, TouchableOpacity } from 'react-native';
+import { View, Text, ScrollView, Image, TouchableOpacity, Modal } from 'react-native';
+import { useState } from 'react';
 import { useAuth } from '../../context';
-import { Mail, Phone, MapPin, FileText, Camera, LogOut, CheckCircle, Shield } from 'lucide-react-native';
+import { Mail, Phone, MapPin, FileText, Camera, LogOut, CheckCircle, Shield, AlertTriangle, X } from 'lucide-react-native';
 
 export const ProfileTab = () => {
   const { user, logout } = useAuth();
+  const [showLogoutModal, setShowLogoutModal] = useState(false);
+  const [selectedImage, setSelectedImage] = useState<string | null>(null);
 
   const handleLogout = async () => {
+    setShowLogoutModal(false);
     await logout();
   };
 
@@ -20,6 +24,39 @@ export const ProfileTab = () => {
 
   const statusColors = getStatusColor();
 
+  if (!user) {
+    return (
+      <ScrollView style={{ flex: 1, backgroundColor: '#F9FAFB' }}>
+        <View style={{ backgroundColor: '#1B365D', paddingTop: 60, paddingBottom: 40, paddingHorizontal: 20, borderBottomLeftRadius: 20, borderBottomRightRadius: 20 }}>
+          <View style={{ alignItems: 'center' }}>
+            <View style={{ width: 100, height: 100, borderRadius: 50, backgroundColor: 'rgba(255,255,255,0.3)', marginBottom: 16 }} />
+            <View style={{ width: 180, height: 24, borderRadius: 12, backgroundColor: 'rgba(255,255,255,0.3)', marginBottom: 12 }} />
+            <View style={{ width: 100, height: 26, borderRadius: 20, backgroundColor: 'rgba(255,255,255,0.3)' }} />
+          </View>
+        </View>
+        <View style={{ padding: 20, marginTop: -20 }}>
+          <View style={{ backgroundColor: 'white', borderRadius: 16, padding: 20, marginBottom: 16, shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.08, shadowRadius: 8, elevation: 3 }}>
+            <View style={{ width: 150, height: 20, borderRadius: 10, backgroundColor: '#E5E7EB', marginBottom: 16 }} />
+            {[1, 2, 3].map(i => (
+              <View key={i} style={{ flexDirection: 'row', alignItems: 'center', paddingVertical: 12, borderBottomWidth: i < 3 ? 1 : 0, borderBottomColor: '#F3F4F6' }}>
+                <View style={{ width: 40, height: 40, borderRadius: 20, backgroundColor: '#E5E7EB' }} />
+                <View style={{ marginLeft: 12, flex: 1 }}>
+                  <View style={{ width: 80, height: 10, borderRadius: 5, backgroundColor: '#E5E7EB', marginBottom: 6 }} />
+                  <View style={{ width: 140, height: 12, borderRadius: 6, backgroundColor: '#E5E7EB' }} />
+                </View>
+              </View>
+            ))}
+          </View>
+          <View style={{ backgroundColor: 'white', borderRadius: 16, padding: 20, marginBottom: 16, shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.08, shadowRadius: 8, elevation: 3 }}>
+            <View style={{ width: 150, height: 20, borderRadius: 10, backgroundColor: '#E5E7EB', marginBottom: 16 }} />
+            <View style={{ width: '100%', height: 160, borderRadius: 12, backgroundColor: '#E5E7EB', marginBottom: 16 }} />
+            <View style={{ width: '100%', height: 160, borderRadius: 12, backgroundColor: '#E5E7EB' }} />
+          </View>
+        </View>
+      </ScrollView>
+    );
+  }
+
   return (
     <ScrollView style={{ flex: 1, backgroundColor: '#F9FAFB' }}>
       {/* Header */}
@@ -28,7 +65,7 @@ export const ProfileTab = () => {
           {user?.documents?.selfieUrl ? (
             <Image 
               source={{ uri: user.documents.selfieUrl }} 
-              style={{ width: 100, height: 100, borderRadius: 50, borderWidth: 4, borderColor: 'white', marginBottom: 16, shadowColor: '#000', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.2, shadowRadius: 8, elevation: 5 }}
+              style={{ width: 100, height: 100, borderRadius: 50, borderWidth: 4, borderColor: 'white', marginBottom: 16, shadowColor: '#000', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.2, shadowRadius: 8,  }}
               resizeMode="cover"
             />
           ) : (
@@ -112,11 +149,13 @@ export const ProfileTab = () => {
                 <FileText size={16} color="#6B7280" strokeWidth={2} />
                 <Text style={{ fontSize: 12, color: '#6B7280', marginLeft: 6, fontFamily: 'Inter-SemiBold' }}>Valid ID</Text>
               </View>
-              <Image 
-                source={{ uri: user.documents.validIdUrl }} 
-                style={{ width: '100%', height: 160, borderRadius: 12, backgroundColor: '#F3F4F6' }}
-                resizeMode="cover"
-              />
+              <TouchableOpacity onPress={() => setSelectedImage(user.documents.validIdUrl)}>
+                <Image 
+                  source={{ uri: user.documents.validIdUrl }} 
+                  style={{ width: '100%', height: 160, borderRadius: 12, backgroundColor: '#F3F4F6' }}
+                  resizeMode="cover"
+                />
+              </TouchableOpacity>
             </View>
           )}
 
@@ -126,24 +165,61 @@ export const ProfileTab = () => {
                 <Camera size={16} color="#6B7280" strokeWidth={2} />
                 <Text style={{ fontSize: 12, color: '#6B7280', marginLeft: 6, fontFamily: 'Inter-SemiBold' }}>Selfie with ID</Text>
               </View>
-              <Image 
-                source={{ uri: user.documents.selfieUrl }} 
-                style={{ width: '100%', height: 160, borderRadius: 12, backgroundColor: '#F3F4F6' }}
-                resizeMode="cover"
-              />
+              <TouchableOpacity onPress={() => setSelectedImage(user.documents.selfieUrl)}>
+                <Image 
+                  source={{ uri: user.documents.selfieUrl }} 
+                  style={{ width: '100%', height: 160, borderRadius: 12, backgroundColor: '#F3F4F6' }}
+                  resizeMode="cover"
+                />
+              </TouchableOpacity>
             </View>
           )}
         </View>
 
         {/* Logout Button */}
         <TouchableOpacity 
-          onPress={handleLogout}
+          onPress={() => setShowLogoutModal(true)}
           style={{ backgroundColor: '#DC2626', borderRadius: 12, padding: 16, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', shadowColor: '#DC2626', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.2, shadowRadius: 8, elevation: 3, marginBottom: 20 }}
         >
           <LogOut size={20} color="white" strokeWidth={2} />
           <Text style={{ color: 'white', fontSize: 16, fontWeight: '700', marginLeft: 8, fontFamily: 'Inter-SemiBold' }}>Logout</Text>
         </TouchableOpacity>
       </View>
+
+      {/* Image Viewer Modal */}
+      <Modal visible={!!selectedImage} transparent animationType="fade">
+        <View style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.9)', justifyContent: 'center', alignItems: 'center' }}>
+          <TouchableOpacity onPress={() => setSelectedImage(null)} style={{ position: 'absolute', top: 50, right: 20, zIndex: 10, backgroundColor: 'rgba(255,255,255,0.2)', borderRadius: 20, padding: 8 }}>
+            <X size={24} color="white" strokeWidth={2} />
+          </TouchableOpacity>
+          {selectedImage && (
+            <Image source={{ uri: selectedImage }} style={{ width: '90%', height: '70%', borderRadius: 12 }} resizeMode="contain" />
+          )}
+        </View>
+      </Modal>
+
+      {/* Logout Confirmation Modal */}
+      <Modal visible={showLogoutModal} transparent animationType="fade">
+        <View style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'center', alignItems: 'center', padding: 20 }}>
+          <View style={{ backgroundColor: 'white', borderRadius: 16, padding: 24, width: '100%', maxWidth: 400 }}>
+            <View style={{ alignItems: 'center', marginBottom: 20 }}>
+              <View style={{ width: 56, height: 56, borderRadius: 28, backgroundColor: '#FEE2E2', alignItems: 'center', justifyContent: 'center', marginBottom: 16 }}>
+                <AlertTriangle size={28} color="#DC2626" strokeWidth={2} />
+              </View>
+              <Text style={{ fontSize: 20, fontWeight: 'bold', color: '#1F2937', fontFamily: 'Inter-SemiBold', marginBottom: 8 }}>Logout Confirmation</Text>
+              <Text style={{ fontSize: 14, color: '#6B7280', textAlign: 'center', fontFamily: 'Inter-Medium' }}>Are you sure you want to logout?</Text>
+            </View>
+            <View style={{ flexDirection: 'row', gap: 12 }}>
+              <TouchableOpacity onPress={() => setShowLogoutModal(false)} style={{ flex: 1, backgroundColor: '#F3F4F6', borderRadius: 12, padding: 14, alignItems: 'center' }}>
+                <Text style={{ color: '#4B5563', fontSize: 15, fontWeight: '600', fontFamily: 'Inter-SemiBold' }}>Cancel</Text>
+              </TouchableOpacity>
+              <TouchableOpacity onPress={handleLogout} style={{ flex: 1, backgroundColor: '#DC2626', borderRadius: 12, padding: 14, alignItems: 'center' }}>
+                <Text style={{ color: 'white', fontSize: 15, fontWeight: '600', fontFamily: 'Inter-SemiBold' }}>Logout</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
     </ScrollView>
   );
 };
