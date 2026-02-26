@@ -1,8 +1,9 @@
-import { View, Text, ScrollView, TouchableOpacity, Animated } from 'react-native';
+import { View, Text, ScrollView, TouchableOpacity, Animated, Alert } from 'react-native';
 import { Button } from '../components/ui';
 import { StepIndicator } from '../components/ui/StepIndicator';
 import { useState, useEffect, useRef } from 'react';
 import { PersonalDetailsStep, DocumentVerificationStep, CredentialsStep, RegistrationModals } from '../components/registration';
+import { registerUser } from '../services';
 
 interface MultiStepRegisterScreenProps {
   onNavigateToLogin: () => void;
@@ -22,6 +23,9 @@ export const MultiStepRegisterScreen = ({ onNavigateToLogin }: MultiStepRegister
   const [region, setRegion] = useState('');
   const [municipality, setMunicipality] = useState('');
   const [barangay, setBarangay] = useState('');
+  const [communityRole, setCommunityRole] = useState('');
+  const [customRole, setCustomRole] = useState('');
+  const [showRoleDropdown, setShowRoleDropdown] = useState(false);
 
   // Step 2: Document Validation
   const [idType, setIdType] = useState('');
@@ -69,7 +73,7 @@ export const MultiStepRegisterScreen = ({ onNavigateToLogin }: MultiStepRegister
   const handleContactChange = (text: string) => {
     const cleaned = text.replace(/[^0-9]/g, '');
     if (cleaned.startsWith('0')) {
-      setContactNumber(cleaned.substring(1));
+      setContactNumber(cleaned.substring(1, 11));
     } else if (cleaned.length <= 10) {
       setContactNumber(cleaned);
     }
@@ -85,6 +89,8 @@ export const MultiStepRegisterScreen = ({ onNavigateToLogin }: MultiStepRegister
       if (!lastName) newErrors.push('Last Name is required');
       if (contactNumber.length !== 10) newErrors.push('Valid contact number is required');
       if (!email) newErrors.push('Email is required');
+      if (!communityRole) newErrors.push('Community Role is required');
+      if (communityRole === 'Other (Specify)' && !customRole) newErrors.push('Custom role is required');
     } else if (currentStep === 2) {
       if (!idType) newErrors.push('ID Type is required');
       if (!validId) newErrors.push('Valid ID is required');
@@ -118,11 +124,33 @@ export const MultiStepRegisterScreen = ({ onNavigateToLogin }: MultiStepRegister
     
     setIsRegistering(true);
     
-    // Simulate registration process
-    setTimeout(() => {
+    try {
+      await registerUser({
+        firstName,
+        lastName,
+        middleInitial,
+        contactNumber,
+        email,
+        region,
+        municipality,
+        barangay,
+        communityRole: communityRole === 'Other (Specify)' ? customRole : communityRole,
+        idType,
+        validIdUri: validId!,
+        selfieUri: selfie!,
+        password,
+      });
+      
       setIsRegistering(false);
       setShowSuccessModal(true);
-    }, 2000);
+    } catch (error: any) {
+      setIsRegistering(false);
+      if (error.message === 'Contact number already registered') {
+        Alert.alert('Registration Failed', 'This contact number is already registered. Please use a different number or login.');
+      } else {
+        Alert.alert('Registration Failed', error.message || 'An error occurred during registration');
+      }
+    }
   };
 
   const renderStep = () => {
@@ -147,6 +175,12 @@ export const MultiStepRegisterScreen = ({ onNavigateToLogin }: MultiStepRegister
             setMunicipality={setMunicipality}
             barangay={barangay}
             setBarangay={setBarangay}
+            communityRole={communityRole}
+            setCommunityRole={setCommunityRole}
+            customRole={customRole}
+            setCustomRole={setCustomRole}
+            showRoleDropdown={showRoleDropdown}
+            setShowRoleDropdown={setShowRoleDropdown}
             errors={errors}
           />
         );
