@@ -62,10 +62,10 @@ export const CredentialsStep = ({
         </Text>
         <View className="flex-row items-center rounded-xl border-2 bg-white px-4 border-gray-300">
           <Text className="mr-2 text-2xl">🇵🇭</Text>
-          <Text className="mr-2 font-medium text-base text-gray-300" style={{ fontFamily: 'Inter-Medium' }}>
-            +63 |
+          <Text className="mr-2 font-medium text-base text-gray-500" style={{ fontFamily: 'Inter-Medium' }}>
+            +63 
           </Text>
-          <View className="mr-2 h-6 w-px bg-gray-300" />
+          <View className="mr-2 h-6 w-px bg-gray-500" />
           <TextInput
             className="flex-1 text-base text-gray-800"
             style={{ paddingVertical: 16, fontFamily: 'Inter-Medium' }}
