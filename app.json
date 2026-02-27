@@ -3,29 +3,25 @@
     "name": "sentinel-ph",
     "slug": "sentinel-ph",
     "version": "1.0.0",
-
     "web": {
       "favicon": "./assets/favicon.png",
       "bundler": "metro"
     },
-
     "experiments": {
       "tsconfigPaths": true
     },
-
     "plugins": [],
-
     "orientation": "portrait",
     "icon": "./assets/logo/logo.png",
-
     "userInterfaceStyle": "light",
-
     "splash": {
       "image": "./assets/logo/logo.png",
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
     },
-    "assetBundlePatterns": ["**/*"],
+    "assetBundlePatterns": [
+      "**/*"
+    ],
     "ios": {
       "supportsTablet": true
     },
@@ -33,7 +29,20 @@
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
+      },
+      "package": "com.marcelo12345.sentinelph"
+    },
+    "extra": {
+      "eas": {
+        "projectId": "e719d528-f359-4edf-b511-6e70a2e1ff75"
       }
+    },
+    "owner": "marcelo12345",
+    "runtimeVersion": {
+      "policy": "appVersion"
+    },
+    "updates": {
+      "url": "https://u.expo.dev/e719d528-f359-4edf-b511-6e70a2e1ff75"
     }
   }
 }

@@ -24,6 +24,7 @@
     "expo-linear-gradient": "^15.0.8",
     "expo-location": "~18.0.6",
     "expo-status-bar": "~3.0.8",
+    "expo-updates": "~29.0.16",
     "firebase": "^12.9.0",
     "lucide-react-native": "^0.575.0",
     "nativewind": "latest",
