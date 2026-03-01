@@ -1,9 +1,13 @@
 import { View, Text, ScrollView, Image, TouchableOpacity, Modal } from 'react-native';
 import { useState } from 'react';
 import { useAuth } from '../../context';
-import { Mail, Phone, MapPin, FileText, Camera, LogOut, CheckCircle, Shield, AlertTriangle, X, Users, BadgeCheck } from 'lucide-react-native';
+import { Mail, Phone, MapPin, FileText, Camera, LogOut, CheckCircle, Shield, AlertTriangle, X, Users, BadgeCheck, QrCode } from 'lucide-react-native';
 
-export const ProfileTab = () => {
+interface ProfileTabProps {
+  navigation?: any;
+}
+
+export const ProfileTab = ({ navigation }: ProfileTabProps) => {
   const { user, logout } = useAuth();
   const [showLogoutModal, setShowLogoutModal] = useState(false);
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
@@ -60,7 +64,18 @@ export const ProfileTab = () => {
   return (
     <ScrollView style={{ flex: 1, backgroundColor: '#F9FAFB' }}>
       {/* Header */}
-      <View style={{ backgroundColor: '#1B365D', paddingTop: 60, paddingBottom: 40, paddingHorizontal: 20, borderBottomLeftRadius: 20, borderBottomRightRadius: 20 }}>
+      <View style={{ backgroundColor: '#1B365D', paddingTop: 60, paddingBottom: 40, paddingHorizontal: 20, borderBottomLeftRadius: 20, borderBottomRightRadius: 20, position: 'relative' }}>
+        {/* QR Code Button - Top Right */}
+        <TouchableOpacity 
+          onPress={() => navigation?.navigate('qr')}
+          style={{ position: 'absolute', top: 60, right: 20, alignItems: 'center' }}
+        >
+          <View style={{ backgroundColor: 'rgba(255,255,255,0.2)', borderRadius: 12, padding: 8, borderWidth: 1, borderColor: 'rgba(255,255,255,0.3)', marginBottom: 4 }}>
+            <QrCode size={20} color="white" strokeWidth={2} />
+          </View>
+          <Text style={{ color: 'white', fontSize: 10, fontWeight: '600', fontFamily: 'Inter-SemiBold' }}>My QR</Text>
+        </TouchableOpacity>
+
         <View style={{ alignItems: 'center' }}>
           {user?.documents?.selfieUrl ? (
             <Image 
