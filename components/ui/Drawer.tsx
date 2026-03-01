@@ -1,6 +1,6 @@
-import { View, Text, TouchableOpacity, Dimensions, Platform, Animated, Image, Modal } from 'react-native';
+import { View, Text, TouchableOpacity, Dimensions, Platform, Animated, Image, Modal, StatusBar } from 'react-native';
 import { useState } from 'react';
-import { Users, Shield, Settings, LogOut, AlertTriangle, Phone, Info, Award, Briefcase } from 'lucide-react-native';
+import { Users, Shield, Settings, LogOut, AlertTriangle, Phone, Info, Award, Briefcase, Megaphone } from 'lucide-react-native';
 import { useAuth } from '../../context';
 import { Button } from './Button';
 
@@ -48,7 +48,7 @@ export const Drawer = ({ isOpen, onClose, drawerAnim }: DrawerProps) => {
           elevation: 5
         }}
       >
-        <View style={{ paddingTop: Platform.OS === 'ios' ? Math.max(40, height * 0.05) : Math.max(30, height * 0.04), paddingHorizontal: 20, paddingBottom: 12, backgroundColor: '#1B365D' }}>
+        <View style={{ paddingTop: (StatusBar.currentHeight || 0) + 50, paddingHorizontal: 20, paddingBottom: 16, backgroundColor: '#1B365D' }}>
           <View className="flex-row items-center">
             {user?.documents?.selfieUrl ? (
               <Image 
@@ -92,6 +92,11 @@ export const Drawer = ({ isOpen, onClose, drawerAnim }: DrawerProps) => {
         </View>
 
         <View className="flex-1 px-4 py-6">
+          <TouchableOpacity className="flex-row items-center py-3 px-4 rounded-lg">
+            <Megaphone size={22} color="#1B365D" strokeWidth={2} />
+            <Text className="text-[#1B365D] text-base ml-4" style={{ fontFamily: 'Inter-Medium' }}>Announcements</Text>
+          </TouchableOpacity>
+
           <TouchableOpacity className="flex-row items-center py-3 px-4 rounded-lg">
             <Users size={22} color="#1B365D" strokeWidth={2} />
             <Text className="text-[#1B365D] text-base ml-4" style={{ fontFamily: 'Inter-Medium' }}>Community</Text>
