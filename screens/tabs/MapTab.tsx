@@ -1,7 +1,10 @@
-import React, { useState, useEffect } from 'react';
-import { View, Text, ActivityIndicator, StyleSheet, Linking, TouchableOpacity, Image, Dimensions } from 'react-native';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
+import { View, Text, ActivityIndicator, TouchableOpacity, Dimensions, ScrollView, Modal, StyleSheet } from 'react-native';
 import * as Location from 'expo-location';
-import { MapPin, Navigation } from 'lucide-react-native';
+import { WebView } from 'react-native-webview';
+import { MapPin, X, User, Calendar } from 'lucide-react-native';
+import { subscribeToSymptomReports, SymptomReport } from '../../services/symptomReports';
+import { useAuth } from '../../context/AuthContext';
 
 const GOOGLE_MAPS_API_KEY = process.env.EXPO_PUBLIC_GOOGLE_MAPS_API_KEY;
 const { width, height } = Dimensions.get('window');
@@ -9,9 +12,19 @@ const { width, height } = Dimensions.get('window');
 export const MapTab = () => {
   const [location, setLocation] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+  const [symptomReports, setSymptomReports] = useState<SymptomReport[]>([]);
+  const [selectedReport, setSelectedReport] = useState<SymptomReport | null>(null);
+  const webViewRef = useRef<WebView>(null);
+  const { user } = useAuth();
 
   useEffect(() => {
     getCurrentLocation();
+    
+    const unsubscribe = subscribeToSymptomReports((reports) => {
+      setSymptomReports(reports);
+    });
+    
+    return unsubscribe;
   }, []);
 
   const getCurrentLocation = async () => {
@@ -36,12 +49,89 @@ export const MapTab = () => {
     }
   };
 
-  const openInGoogleMaps = () => {
-    const lat = location?.latitude || 14.5995;
-    const lng = location?.longitude || 120.9842;
-    const url = `https://www.google.com/maps/search/?api=1&query=${lat},${lng}`;
-    Linking.openURL(url);
-  };
+  const lat = location?.latitude || 10.3031904;
+  const lng = location?.longitude || 123.8919048;
+
+  const mapHtml = useMemo(() => `
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <style>
+        #map { height: 100vh; width: 100vw; }
+        html, body { height: 100%; margin: 0; padding: 0; }
+      </style>
+    </head>
+    <body>
+      <div id="map"></div>
+      <script>
+        function initMap() {
+          const map = new google.maps.Map(document.getElementById('map'), {
+            zoom: 13,
+            center: { lat: ${lat}, lng: ${lng} },
+            mapTypeId: 'satellite'
+          });
+
+          // User location marker
+          new google.maps.Marker({
+            position: { lat: ${lat}, lng: ${lng} },
+            map: map,
+            title: 'Your Location',
+            icon: {
+              path: google.maps.SymbolPath.CIRCLE,
+              scale: 12,
+              fillColor: '#4285F6',
+              fillOpacity: 1,
+              strokeColor: '#ffffff',
+              strokeWeight: 3
+            }
+          });
+
+          // Barangay boundary circle
+          new google.maps.Circle({
+            strokeColor: '#10B981',
+            strokeOpacity: 1,
+            strokeWeight: 4,
+            fillColor: '#10B981',
+            fillOpacity: 0.15,
+            map: map,
+            center: { lat: ${lat}, lng: ${lng} },
+            radius: 800
+          });
+
+          ${symptomReports
+            .filter(report => report.latitude && report.longitude)
+            .map((report, index) => {
+              const color = report.status === 'verified' ? '#EF4444' : report.status === 'pending' ? '#F59E0B' : '#6B7280';
+              return `
+                const marker${index} = new google.maps.Marker({
+                  position: { lat: ${report.latitude}, lng: ${report.longitude} },
+                  map: map,
+                  icon: {
+                    path: 'M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z',
+                    fillColor: '${color}',
+                    fillOpacity: 1,
+                    strokeColor: '#ffffff',
+                    strokeWeight: 2,
+                    scale: 2
+                  },
+                  animation: google.maps.Animation.DROP
+                });
+                
+                marker${index}.addListener('click', function() {
+                  window.ReactNativeWebView.postMessage(JSON.stringify({
+                    type: 'markerClick',
+                    reportId: '${report.id}'
+                  }));
+                });
+              `;
+            }).join('')}
+        }
+      </script>
+      <script async defer src="https://maps.googleapis.com/maps/api/js?key=${GOOGLE_MAPS_API_KEY}&callback=initMap"></script>
+    </body>
+    </html>
+  `, [lat, lng, symptomReports, user?.uid]);
 
   if (loading) {
     return (
@@ -52,24 +142,101 @@ export const MapTab = () => {
     );
   }
 
-  const lat = location?.latitude || 14.5995;
-  const lng = location?.longitude || 120.9842;
-  const mapUrl = `https://maps.googleapis.com/maps/api/staticmap?center=${lat},${lng}&zoom=15&size=${Math.floor(width)}x${Math.floor(height)}&markers=color:red%7C${lat},${lng}&key=${GOOGLE_MAPS_API_KEY}`;
+  const handleWebViewMessage = (event: any) => {
+    try {
+      const data = JSON.parse(event.nativeEvent.data);
+      if (data.type === 'markerClick') {
+        const report = symptomReports.find(r => r.id === data.reportId);
+        if (report) {
+          setSelectedReport({
+            ...report,
+            isUserReport: report.userId === user?.uid
+          } as SymptomReport & {isUserReport: boolean});
+        }
+      }
+    } catch (error) {
+      console.error('Error parsing WebView message:', error);
+    }
+  };
 
   return (
     <View style={styles.container}>
-      <Image source={{ uri: mapUrl }} style={styles.map} resizeMode="cover" />
-      <View style={styles.locationCard}>
-        <MapPin size={24} color="#1B365D" strokeWidth={2} />
-        <Text style={styles.locationTitle}>Your Location</Text>
-        <Text style={styles.locationCoords}>
-          {lat.toFixed(6)}, {lng.toFixed(6)}
-        </Text>
-        <TouchableOpacity style={styles.openMapButton} onPress={openInGoogleMaps}>
-          <Navigation size={18} color="white" strokeWidth={2} />
-          <Text style={styles.openMapText}>Open Interactive Map</Text>
+      <WebView
+        ref={webViewRef}
+        source={{ html: mapHtml }}
+        style={styles.fullMap}
+        javaScriptEnabled={true}
+        domStorageEnabled={true}
+        onMessage={handleWebViewMessage}
+      />
+      <Modal
+        visible={selectedReport !== null}
+        transparent={true}
+        animationType="fade"
+        onRequestClose={() => setSelectedReport(null)}
+      >
+        <TouchableOpacity 
+          style={styles.modalOverlay}
+          activeOpacity={1}
+          onPress={() => setSelectedReport(null)}
+        >
+          <TouchableOpacity 
+            style={styles.modalContent}
+            activeOpacity={1}
+            onPress={(e) => e.stopPropagation()}
+          >
+            {selectedReport && (
+              <>
+                <View style={styles.modalHeader}>
+                  <View style={styles.modalTitleContainer}>
+                    <Text style={styles.modalTitle}>
+                      {selectedReport.reportType === 'observed' ? 'Observed' : 'Experienced'} Report
+                    </Text>
+                    {(selectedReport as any).isUserReport && (
+                      <View style={styles.yourReportBadge}>
+                        <Text style={styles.yourReportBadgeText}>YOUR REPORT</Text>
+                      </View>
+                    )}
+                  </View>
+                  <TouchableOpacity onPress={() => setSelectedReport(null)}>
+                    <X size={20} color="#6B7280" />
+                  </TouchableOpacity>
+                </View>
+                
+                <View style={styles.modalStatusContainer}>
+                  <View style={[
+                    styles.modalStatus,
+                    { backgroundColor: selectedReport.status === 'verified' ? '#10B981' : selectedReport.status === 'pending' ? '#F59E0B' : '#6B7280' }
+                  ]}>
+                    <Text style={styles.modalStatusText}>{selectedReport.status.toUpperCase()}</Text>
+                  </View>
+                </View>
+
+                <Text style={styles.modalSectionTitle}>Symptoms:</Text>
+                <Text style={styles.modalSectionContent}>
+                  {selectedReport.symptoms.join(', ')}
+                  {selectedReport.customSymptom && `, ${selectedReport.customSymptom}`}
+                </Text>
+
+                <View style={styles.modalDetails}>
+                  <View style={styles.modalDetailItem}>
+                    <User size={14} color="#6B7280" />
+                    <Text style={styles.modalDetailText}>
+                      {(selectedReport as any).isUserReport ? 'You' : selectedReport.userName}
+                    </Text>
+                  </View>
+                  <View style={styles.modalDetailItem}>
+                    <Calendar size={14} color="#6B7280" />
+                    <Text style={styles.modalDetailText}>
+                      {selectedReport.createdAt?.toDate?.()?.toLocaleDateString() || 'Recent'}
+                    </Text>
+                  </View>
+                </View>
+              </>
+            )}
+          </TouchableOpacity>
         </TouchableOpacity>
-      </View>
+      </Modal>
     </View>
   );
 };
@@ -77,10 +244,7 @@ export const MapTab = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-  },
-  map: {
-    width: '100%',
-    height: '100%',
+    backgroundColor: '#F9FAFB',
   },
   loadingContainer: {
     flex: 1,
@@ -91,51 +255,93 @@ const styles = StyleSheet.create({
   loadingText: {
     marginTop: 12,
     color: '#6B7280',
-    fontFamily: 'Inter-Medium',
+    fontWeight: '500',
   },
-  locationCard: {
-    position: 'absolute',
-    bottom: 20,
-    left: 20,
-    right: 20,
-    backgroundColor: 'white',
-    borderRadius: 16,
-    padding: 20,
+  fullMap: {
+    flex: 1,
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.6)',
+    justifyContent: 'center',
     alignItems: 'center',
+    paddingHorizontal: 20,
+  },
+  modalContent: {
+    backgroundColor: 'white',
+    borderRadius: 2,
+    padding: 20,
+    width: '100%',
+    maxHeight: '60%',
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.25,
     shadowRadius: 8,
-    elevation: 5,
+    elevation: 8,
   },
-  locationTitle: {
-    fontSize: 18,
-    fontWeight: '700',
-    color: '#1B365D',
-    marginTop: 8,
-    fontFamily: 'Inter-SemiBold',
+  modalHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 16,
   },
-  locationCoords: {
-    fontSize: 13,
-    color: '#6B7280',
-    marginTop: 4,
-    fontFamily: 'Inter-Medium',
-  },
-  openMapButton: {
-    backgroundColor: '#1B365D',
+  modalTitleContainer: {
+    flex: 1,
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'center',
-    paddingHorizontal: 20,
-    paddingVertical: 10,
-    borderRadius: 8,
-    marginTop: 16,
     gap: 8,
   },
-  openMapText: {
+  modalTitle: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: '#1B365D',
+  },
+  yourReportBadge: {
+    backgroundColor: '#10B981',
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    borderRadius: 10,
+  },
+  yourReportBadgeText: {
     color: 'white',
+    fontSize: 9,
+    fontWeight: 'bold',
+  },
+  modalStatusContainer: {
+    marginBottom: 16,
+  },
+  modalStatus: {
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 12,
+    alignSelf: 'flex-start',
+  },
+  modalStatusText: {
+    color: 'white',
+    fontSize: 12,
+    fontWeight: 'bold',
+  },
+  modalSectionTitle: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: '#1B365D',
+    marginBottom: 8,
+  },
+  modalSectionContent: {
     fontSize: 14,
-    fontWeight: '600',
-    fontFamily: 'Inter-SemiBold',
+    color: '#374151',
+    marginBottom: 16,
+  },
+  modalDetails: {
+    gap: 8,
+  },
+  modalDetailItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  modalDetailText: {
+    fontSize: 14,
+    color: '#6B7280',
   },
 });
