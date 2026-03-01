@@ -1,5 +1,6 @@
 import { View, Text, TouchableOpacity, Animated, Modal, Dimensions } from 'react-native';
 import { useEffect, useRef } from 'react';
+import { Audio } from 'expo-av';
 import { X, AlertTriangle, Heart, Package, Droplet, Syringe, Info } from 'lucide-react-native';
 import { Announcement } from '../../services/announcements';
 
@@ -31,9 +32,15 @@ const getAnnouncementStyle = (type: string) => {
 
 export const AnnouncementNotification = ({ announcement, visible, onClose, onPress }: AnnouncementNotificationProps) => {
   const slideAnim = useRef(new Animated.Value(-100)).current;
+  const soundRef = useRef<Audio.Sound | null>(null);
 
   useEffect(() => {
     if (visible && announcement) {
+      // Play alert sound only for outbreak alerts
+      if (announcement.type === 'outbreak_alert') {
+        playAlertSound();
+      }
+      
       Animated.spring(slideAnim, { 
         toValue: 0, 
         useNativeDriver: true, 
@@ -41,6 +48,9 @@ export const AnnouncementNotification = ({ announcement, visible, onClose, onPre
         friction: 8
       }).start();
     } else {
+      // Stop sound when notification is closed
+      stopAlertSound();
+      
       Animated.timing(slideAnim, {
         toValue: -100,
         duration: 300,
@@ -48,6 +58,38 @@ export const AnnouncementNotification = ({ announcement, visible, onClose, onPre
       }).start();
     }
   }, [visible, announcement]);
+
+  const playAlertSound = async () => {
+    try {
+      const { sound } = await Audio.Sound.createAsync(
+        require('../../assets/alert_sounds/wireless_emergency_alert.mp3')
+      );
+      soundRef.current = sound;
+      await sound.playAsync();
+      
+      // Auto-cleanup when sound finishes
+      sound.setOnPlaybackStatusUpdate((status) => {
+        if (status.isLoaded && status.didJustFinish) {
+          sound.unloadAsync();
+          soundRef.current = null;
+        }
+      });
+    } catch (error) {
+      console.log('Error playing alert sound:', error);
+    }
+  };
+
+  const stopAlertSound = async () => {
+    if (soundRef.current) {
+      try {
+        await soundRef.current.stopAsync();
+        await soundRef.current.unloadAsync();
+        soundRef.current = null;
+      } catch (error) {
+        console.log('Error stopping alert sound:', error);
+      }
+    }
+  };
 
   if (!announcement) return null;
   
@@ -58,7 +100,10 @@ export const AnnouncementNotification = ({ announcement, visible, onClose, onPre
     <Modal visible={visible} transparent animationType="none">
       <View style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.3)', justifyContent: 'flex-start', paddingTop: 60 }}>
         <Animated.View style={{ transform: [{ translateY: slideAnim }], marginHorizontal: 16 }}>
-          <TouchableOpacity onPress={onPress} activeOpacity={0.9}>
+          <TouchableOpacity onPress={() => {
+            stopAlertSound();
+            onPress();
+          }} activeOpacity={0.9}>
             <View style={{ 
               backgroundColor: style.bg, 
               borderLeftWidth: 6, 
@@ -82,7 +127,10 @@ export const AnnouncementNotification = ({ announcement, visible, onClose, onPre
                     <Text style={{ fontSize: 15, color: '#4B5563', lineHeight: 20 }} numberOfLines={3}>{announcement.message}</Text>
                   </View>
                 </View>
-                <TouchableOpacity onPress={onClose} style={{ padding: 8, marginLeft: 8 }}>
+                <TouchableOpacity onPress={() => {
+                  stopAlertSound();
+                  onClose();
+                }} style={{ padding: 8, marginLeft: 8 }}>
                   <X size={24} color="#6B7280" strokeWidth={2} />
                 </TouchableOpacity>
               </View>
