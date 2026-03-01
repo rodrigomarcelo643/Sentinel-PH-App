@@ -2,7 +2,7 @@ import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { View, Text, ActivityIndicator, TouchableOpacity, Dimensions, ScrollView, Modal, StyleSheet } from 'react-native';
 import * as Location from 'expo-location';
 import { WebView } from 'react-native-webview';
-import { MapPin, X, User, Calendar } from 'lucide-react-native';
+import { MapPin, X, User, Calendar, Filter, ChevronDown } from 'lucide-react-native';
 import { subscribeToSymptomReports, SymptomReport } from '../../services/symptomReports';
 import { useAuth } from '../../context/AuthContext';
 
@@ -14,6 +14,10 @@ export const MapTab = () => {
   const [loading, setLoading] = useState(true);
   const [symptomReports, setSymptomReports] = useState<SymptomReport[]>([]);
   const [selectedReport, setSelectedReport] = useState<SymptomReport | null>(null);
+  const [severityFilter, setSeverityFilter] = useState<'all' | 'low' | 'medium' | 'high'>('all');
+  const [ownershipFilter, setOwnershipFilter] = useState<'all' | 'yours' | 'others'>('all');
+  const [showSeverityDropdown, setShowSeverityDropdown] = useState(false);
+  const [showOwnershipDropdown, setShowOwnershipDropdown] = useState(false);
   const webViewRef = useRef<WebView>(null);
   const { user } = useAuth();
 
@@ -48,6 +52,27 @@ export const MapTab = () => {
       setLoading(false);
     }
   };
+
+  const filteredReports = useMemo(() => {
+    return symptomReports.filter(report => {
+      // Status filter: only show verified reports OR pending reports if they're yours
+      if (report.status === 'pending' && report.userId !== user?.uid) {
+        return false;
+      }
+      
+      // Severity filter
+      if (severityFilter !== 'all') {
+        const severity = report.symptoms.length <= 2 ? 'low' : report.symptoms.length <= 4 ? 'medium' : 'high';
+        if (severity !== severityFilter) return false;
+      }
+      
+      // Ownership filter
+      if (ownershipFilter === 'yours' && report.userId !== user?.uid) return false;
+      if (ownershipFilter === 'others' && report.userId === user?.uid) return false;
+      
+      return true;
+    });
+  }, [symptomReports, severityFilter, ownershipFilter, user?.uid]);
 
   const lat = location?.latitude || 10.3031904;
   const lng = location?.longitude || 123.8919048;
@@ -99,17 +124,18 @@ export const MapTab = () => {
             radius: 800
           });
 
-          ${symptomReports
+          ${filteredReports
             .filter(report => report.latitude && report.longitude)
             .map((report, index) => {
-              const color = report.status === 'verified' ? '#EF4444' : report.status === 'pending' ? '#F59E0B' : '#6B7280';
+              const symptomCount = report.symptoms.length;
+              const severityColor = symptomCount <= 2 ? '#10B981' : symptomCount <= 4 ? '#F59E0B' : '#EF4444';
               return `
                 const marker${index} = new google.maps.Marker({
                   position: { lat: ${report.latitude}, lng: ${report.longitude} },
                   map: map,
                   icon: {
                     path: 'M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z',
-                    fillColor: '${color}',
+                    fillColor: '${severityColor}',
                     fillOpacity: 1,
                     strokeColor: '#ffffff',
                     strokeWeight: 2,
@@ -131,7 +157,7 @@ export const MapTab = () => {
       <script async defer src="https://maps.googleapis.com/maps/api/js?key=${GOOGLE_MAPS_API_KEY}&callback=initMap"></script>
     </body>
     </html>
-  `, [lat, lng, symptomReports, user?.uid]);
+  `, [lat, lng, filteredReports, user?.uid]);
 
   if (loading) {
     return (
@@ -161,6 +187,27 @@ export const MapTab = () => {
 
   return (
     <View style={styles.container}>
+      {/* Filter Controls */}
+      <View style={styles.filterContainer}>
+        <TouchableOpacity 
+          style={styles.filterButton}
+          onPress={() => setShowSeverityDropdown(!showSeverityDropdown)}
+        >
+          <Filter size={16} color="#1B365D" />
+          <Text style={styles.filterText}>Severity: {severityFilter}</Text>
+          <ChevronDown size={16} color="#1B365D" />
+        </TouchableOpacity>
+        
+        <TouchableOpacity 
+          style={styles.filterButton}
+          onPress={() => setShowOwnershipDropdown(!showOwnershipDropdown)}
+        >
+          <User size={16} color="#1B365D" />
+          <Text style={styles.filterText}>Reports: {ownershipFilter}</Text>
+          <ChevronDown size={16} color="#1B365D" />
+        </TouchableOpacity>
+      </View>
+
       <WebView
         ref={webViewRef}
         source={{ html: mapHtml }}
@@ -237,6 +284,50 @@ export const MapTab = () => {
           </TouchableOpacity>
         </TouchableOpacity>
       </Modal>
+
+      {/* Severity Dropdown */}
+      {showSeverityDropdown && (
+        <Modal transparent={true} visible={showSeverityDropdown} onRequestClose={() => setShowSeverityDropdown(false)}>
+          <TouchableOpacity style={styles.dropdownOverlay} onPress={() => setShowSeverityDropdown(false)}>
+            <View style={styles.dropdown}>
+              {['all', 'low', 'medium', 'high'].map(severity => (
+                <TouchableOpacity 
+                  key={severity}
+                  style={styles.dropdownItem}
+                  onPress={() => {
+                    setSeverityFilter(severity as any);
+                    setShowSeverityDropdown(false);
+                  }}
+                >
+                  <Text style={styles.dropdownText}>{severity}</Text>
+                </TouchableOpacity>
+              ))}
+            </View>
+          </TouchableOpacity>
+        </Modal>
+      )}
+
+      {/* Ownership Dropdown */}
+      {showOwnershipDropdown && (
+        <Modal transparent={true} visible={showOwnershipDropdown} onRequestClose={() => setShowOwnershipDropdown(false)}>
+          <TouchableOpacity style={styles.dropdownOverlay} onPress={() => setShowOwnershipDropdown(false)}>
+            <View style={styles.dropdown}>
+              {[{key: 'all', label: 'All Reports'}, {key: 'yours', label: 'Your Reports'}, {key: 'others', label: 'Other Reports'}].map(item => (
+                <TouchableOpacity 
+                  key={item.key}
+                  style={styles.dropdownItem}
+                  onPress={() => {
+                    setOwnershipFilter(item.key as any);
+                    setShowOwnershipDropdown(false);
+                  }}
+                >
+                  <Text style={styles.dropdownText}>{item.label}</Text>
+                </TouchableOpacity>
+              ))}
+            </View>
+          </TouchableOpacity>
+        </Modal>
+      )}
     </View>
   );
 };
@@ -259,6 +350,54 @@ const styles = StyleSheet.create({
   },
   fullMap: {
     flex: 1,
+  },
+  filterContainer: {
+    flexDirection: 'row',
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    backgroundColor: 'white',
+    gap: 12,
+  },
+  filterButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#F3F4F6',
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderRadius: 8,
+    gap: 6,
+  },
+  filterText: {
+    fontSize: 12,
+    color: '#1B365D',
+    fontWeight: '500',
+  },
+  dropdownOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.3)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  dropdown: {
+    backgroundColor: 'white',
+    borderRadius: 8,
+    minWidth: 150,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
+    elevation: 5,
+  },
+  dropdownItem: {
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    borderBottomWidth: 1,
+    borderBottomColor: '#F3F4F6',
+  },
+  dropdownText: {
+    fontSize: 14,
+    color: '#1B365D',
+    textTransform: 'capitalize',
   },
   modalOverlay: {
     flex: 1,
