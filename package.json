@@ -25,6 +25,8 @@
     "expo-linear-gradient": "^15.0.8",
     "expo-location": "~18.0.6",
     "expo-maps": "^55.0.9",
+    "expo-media-library": "^55.0.9",
+    "expo-sharing": "^55.0.11",
     "expo-status-bar": "~3.0.8",
     "expo-updates": "~29.0.16",
     "firebase": "^12.9.0",
