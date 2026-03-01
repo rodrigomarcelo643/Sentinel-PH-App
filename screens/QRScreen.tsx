@@ -1,9 +1,11 @@
-import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, ActivityIndicator, Alert, ScrollView, TouchableOpacity } from 'react-native';
+import React, { useState, useEffect, useRef } from 'react';
+import { View, Text, StyleSheet, ActivityIndicator, Alert, ScrollView, TouchableOpacity, Modal, Platform } from 'react-native';
 import QRCode from 'react-native-qrcode-svg';
+import * as Sharing from 'expo-sharing';
+import * as FileSystem from 'expo-file-system/legacy';
 import { useAuth } from '../context/AuthContext';
 import { generateUserQRCode, getUserQRCode } from '../services/qrCode';
-import { ArrowLeft, RefreshCw, User, Phone, MapPin, Shield, FileText } from 'lucide-react-native';
+import { ArrowLeft, RefreshCw, User, Phone, MapPin, Shield, FileText, Download, AlertTriangle } from 'lucide-react-native';
 
 interface QRScreenProps {
   navigation: {
@@ -16,6 +18,8 @@ export const QRScreen: React.FC<QRScreenProps> = ({ navigation }) => {
   const [qrData, setQrData] = useState<string>('');
   const [loading, setLoading] = useState(true);
   const [regenerating, setRegenerating] = useState(false);
+  const [showDownloadModal, setShowDownloadModal] = useState(false);
+  const qrRef = useRef<any>(null);
 
   useEffect(() => {
     loadQRCode();
@@ -61,6 +65,49 @@ export const QRScreen: React.FC<QRScreenProps> = ({ navigation }) => {
     }
   };
 
+  const handleDownloadQR = () => {
+    setShowDownloadModal(true);
+  };
+
+  const confirmDownload = async () => {
+    setShowDownloadModal(false);
+    
+    try {
+      if (qrRef.current) {
+        qrRef.current.toDataURL(async (dataURL: string) => {
+          try {
+            const filename = `SentinelPH_QR_${user?.firstName}_${Date.now()}.png`;
+            const fileUri = FileSystem.cacheDirectory + filename;
+            
+            const base64Data = dataURL.replace(/^data:image\/png;base64,/, '');
+            
+            await FileSystem.writeAsStringAsync(fileUri, base64Data, {
+              encoding: FileSystem.EncodingType.Base64,
+            });
+            
+            const isAvailable = await Sharing.isAvailableAsync();
+            if (isAvailable) {
+              await Sharing.shareAsync(fileUri, {
+                mimeType: 'image/png',
+                dialogTitle: 'Save QR Code',
+              });
+            } else {
+              Alert.alert('Error', 'Sharing is not available on this device');
+            }
+          } catch (err) {
+            console.error('Error in toDataURL callback:', err);
+            Alert.alert('Error', 'Failed to process QR code');
+          }
+        });
+      } else {
+        Alert.alert('Error', 'QR code not ready');
+      }
+    } catch (error) {
+      console.error('Error downloading QR code:', error);
+      Alert.alert('Error', 'Failed to download QR code');
+    }
+  };
+
   if (loading) {
     return (
       <View style={styles.loadingContainer}>
@@ -99,6 +146,7 @@ export const QRScreen: React.FC<QRScreenProps> = ({ navigation }) => {
                 size={220}
                 color="#1B365D"
                 backgroundColor="#ffffff"
+                getRef={(ref) => (qrRef.current = ref)}
               />
             ) : (
               <View style={styles.noQRContainer}>
@@ -110,6 +158,14 @@ export const QRScreen: React.FC<QRScreenProps> = ({ navigation }) => {
             <Text style={styles.qrIdLabel}>QR ID</Text>
             <Text style={styles.qrIdText}>{qrData}</Text>
           </View>
+          
+          <TouchableOpacity 
+            style={styles.downloadButton}
+            onPress={handleDownloadQR}
+          >
+            <Download size={18} color="white" />
+            <Text style={styles.downloadButtonText}>Download QR Code</Text>
+          </TouchableOpacity>
         </View>
 
         <View style={styles.userInfoContainer}>
@@ -173,6 +229,35 @@ export const QRScreen: React.FC<QRScreenProps> = ({ navigation }) => {
           </Text>
         </View>
       </ScrollView>
+
+      {/* Download Confirmation Modal */}
+      <Modal visible={showDownloadModal} transparent animationType="fade">
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContent}>
+            <View style={styles.modalIconContainer}>
+              <AlertTriangle size={48} color="#F59E0B" />
+            </View>
+            <Text style={styles.modalTitle}>Privacy Warning</Text>
+            <Text style={styles.modalMessage}>
+              Keep this QR code private. It contains your personal information and health details. Only share with authorized medical personnel.
+            </Text>
+            <View style={styles.modalButtons}>
+              <TouchableOpacity 
+                style={styles.modalCancelButton}
+                onPress={() => setShowDownloadModal(false)}
+              >
+                <Text style={styles.modalCancelText}>Cancel</Text>
+              </TouchableOpacity>
+              <TouchableOpacity 
+                style={styles.modalConfirmButton}
+                onPress={confirmDownload}
+              >
+                <Text style={styles.modalConfirmText}>I Understand</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
     </View>
   );
 };
@@ -337,5 +422,86 @@ const styles = StyleSheet.create({
     color: '#78350F',
     lineHeight: 18,
     fontFamily: 'Inter-Medium',
+  },
+  downloadButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#1B365D',
+    paddingVertical: 12,
+    paddingHorizontal: 24,
+    borderRadius: 8,
+    marginTop: 16,
+    gap: 8,
+  },
+  downloadButtonText: {
+    color: 'white',
+    fontSize: 14,
+    fontWeight: '600',
+    fontFamily: 'Inter-SemiBold',
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.5)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 20,
+  },
+  modalContent: {
+    backgroundColor: 'white',
+    borderRadius: 12,
+    padding: 24,
+    width: '100%',
+    maxWidth: 400,
+    alignItems: 'center',
+  },
+  modalIconContainer: {
+    marginBottom: 16,
+  },
+  modalTitle: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: '#1F2937',
+    marginBottom: 12,
+    fontFamily: 'Inter-SemiBold',
+  },
+  modalMessage: {
+    fontSize: 14,
+    color: '#6B7280',
+    textAlign: 'center',
+    lineHeight: 20,
+    marginBottom: 24,
+    fontFamily: 'Inter-Medium',
+  },
+  modalButtons: {
+    flexDirection: 'row',
+    gap: 12,
+    width: '100%',
+  },
+  modalCancelButton: {
+    flex: 1,
+    backgroundColor: '#F3F4F6',
+    paddingVertical: 12,
+    borderRadius: 8,
+    alignItems: 'center',
+  },
+  modalCancelText: {
+    color: '#4B5563',
+    fontSize: 14,
+    fontWeight: '600',
+    fontFamily: 'Inter-SemiBold',
+  },
+  modalConfirmButton: {
+    flex: 1,
+    backgroundColor: '#1B365D',
+    paddingVertical: 12,
+    borderRadius: 8,
+    alignItems: 'center',
+  },
+  modalConfirmText: {
+    color: 'white',
+    fontSize: 14,
+    fontWeight: '600',
+    fontFamily: 'Inter-SemiBold',
   },
 });
