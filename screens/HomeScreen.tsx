@@ -1,6 +1,6 @@
 import { View, Text, TouchableOpacity, Dimensions, Platform, Image, Animated } from 'react-native';
 import { useState, useRef } from 'react';
-import { Home, History, MapPin, User, Plus, Bell, Menu } from 'lucide-react-native';
+import { Home, History, Map, User, Plus, Bell, Menu } from 'lucide-react-native';
 import { HomeTab, HistoryTab, MapTab, ProfileTab } from './tabs';
 import { ReportScreen } from './ReportScreen';
 import { AiDoctorAssistantScreen } from './AiDoctorAssistantScreen';
@@ -223,7 +223,7 @@ export const HomeScreen = () => {
           <View style={{ width: 80 }} />
 
           <TouchableOpacity onPress={() => setActiveTab('map')} className="flex-1 items-center">
-            <MapPin size={22} color={activeTab === 'map' ? '#1B365D' : '#9CA3AF'} strokeWidth={activeTab === 'map' ? 2.5 : 2} />
+            <Map size={22} color={activeTab === 'map' ? '#1B365D' : '#9CA3AF'} strokeWidth={activeTab === 'map' ? 2.5 : 2} />
             <Text style={{ color: activeTab === 'map' ? '#1B365D' : '#9CA3AF', fontSize: 10, marginTop: 5, fontWeight: activeTab === 'map' ? '700' : '500' }}>Map</Text>
           </TouchableOpacity>
 
