@@ -4,16 +4,22 @@ import { Home, History, MapPin, User, Plus, Bell, Menu } from 'lucide-react-nati
 import { HomeTab, HistoryTab, MapTab, ProfileTab } from './tabs';
 import { ReportScreen } from './ReportScreen';
 import { AiDoctorAssistantScreen } from './AiDoctorAssistantScreen';
+import { AnnouncementsScreen } from './AnnouncementsScreen';
+import { AnnouncementDetailScreen } from './AnnouncementDetailScreen';
 import { Drawer } from '../components/ui';
 import { useAuth } from '../context';
+import { useAnnouncements } from '../context/AnnouncementContext';
+import { Announcement } from '../services/announcements';
 import Svg, { Path } from 'react-native-svg';
 
 const { width } = Dimensions.get('window');
 
 export const HomeScreen = () => {
-  const [activeTab, setActiveTab] = useState<'home' | 'history' | 'map' | 'profile' | 'report' | 'aiDoctor'>('home');
+  const [activeTab, setActiveTab] = useState<'home' | 'history' | 'map' | 'profile' | 'report' | 'aiDoctor' | 'announcements' | 'announcementDetail'>('home');
+  const [selectedAnnouncement, setSelectedAnnouncement] = useState<Announcement | null>(null);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const { user } = useAuth();
+  const { unreadCount } = useAnnouncements();
   const drawerAnim = useRef(new Animated.Value(-width * 0.7)).current;
 
   const toggleDrawer = () => {
@@ -41,10 +47,25 @@ export const HomeScreen = () => {
       case 'profile': return <ProfileTab />;
       case 'report': return <ReportScreen onBack={() => setActiveTab('home')} />;
       case 'aiDoctor': return <AiDoctorAssistantScreen onBack={() => setActiveTab('history')} />;
+      case 'announcements': return (
+        <AnnouncementsScreen 
+          onBack={() => setActiveTab('home')} 
+          onSelectAnnouncement={(announcement) => {
+            setSelectedAnnouncement(announcement);
+            setActiveTab('announcementDetail');
+          }}
+        />
+      );
+      case 'announcementDetail': return selectedAnnouncement ? (
+        <AnnouncementDetailScreen 
+          announcement={selectedAnnouncement}
+          onBack={() => setActiveTab('announcements')}
+        />
+      ) : null;
     }
   };
 
-  if (activeTab === 'report' || activeTab === 'aiDoctor') return renderContent();
+  if (activeTab === 'report' || activeTab === 'aiDoctor' || activeTab === 'announcements' || activeTab === 'announcementDetail') return renderContent();
 
   const center = width / 2;
   const curveWidth = 65;
@@ -67,7 +88,15 @@ export const HomeScreen = () => {
 
   return (
     <View className="flex-1 bg-white">
-      <Drawer isOpen={drawerOpen} onClose={toggleDrawer} drawerAnim={drawerAnim} />
+      <Drawer 
+        isOpen={drawerOpen} 
+        onClose={toggleDrawer} 
+        drawerAnim={drawerAnim} 
+        onNavigateToAnnouncements={() => {
+          setActiveTab('announcements');
+          toggleDrawer();
+        }}
+      />
 
       {/* --- Header --- */}
       <View
@@ -103,28 +132,35 @@ export const HomeScreen = () => {
         </View>
 
         <View className="flex-row items-center" style={{ gap: 15 }}>
-          {/* --- Notification Icon with 99+ Pill Badge --- */}
-          <TouchableOpacity className="relative p-1">
+          {/* --- Notification Icon with Unread Count --- */}
+          <TouchableOpacity 
+            onPress={() => setActiveTab('announcements')}
+            className="relative p-1"
+          >
             <Bell size={26} color="#1B365D" strokeWidth={2} />
-            <View
-              style={{
-                position: 'absolute',
-                top: -2,
-                right: -9,
-                backgroundColor: '#EF4444', // Vibrant Red
-                borderRadius: 10,
-                paddingHorizontal: 5,
-                paddingVertical: 1,
-                minWidth: 30,
-                height: 18,
-                justifyContent: 'center',
-                alignItems: 'center',
-                borderWidth: 1.5,
-                borderColor: 'white'
-              }}
-            >
-              <Text style={{ color: 'white', fontSize: 8, fontWeight: '900' }}>99 +</Text>
-            </View>
+            {unreadCount > 0 && (
+              <View
+                style={{
+                  position: 'absolute',
+                  top: -2,
+                  right: -9,
+                  backgroundColor: '#EF4444',
+                  borderRadius: 10,
+                  paddingHorizontal: 5,
+                  paddingVertical: 1,
+                  minWidth: 20,
+                  height: 18,
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                  borderWidth: 1.5,
+                  borderColor: 'white'
+                }}
+              >
+                <Text style={{ color: 'white', fontSize: 8, fontWeight: '900' }}>
+                  {unreadCount > 99 ? '99+' : unreadCount}
+                </Text>
+              </View>
+            )}
           </TouchableOpacity>
           
           <TouchableOpacity
