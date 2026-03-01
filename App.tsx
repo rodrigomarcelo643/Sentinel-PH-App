@@ -3,7 +3,8 @@ import { useState, useEffect } from 'react';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { SplashScreen } from './components/screens/SplashScreen';
 import { LoginScreen, MultiStepRegisterScreen, PendingApprovalScreen, HomeScreen } from './screens';
-import { AuthProvider, useAuth } from './context';
+import { AuthProvider, useAuth, AnnouncementProvider, useAnnouncements } from './context';
+import { AnnouncementNotification } from './components/ui/AnnouncementNotification';
 import { useFonts } from 'expo-font';
 import './global.css';
 
@@ -11,6 +12,13 @@ const AppContent = () => {
   const [showSplash, setShowSplash] = useState(true);
   const [currentScreen, setCurrentScreen] = useState<'login' | 'register' | 'pending'>('login');
   const { user, loading } = useAuth();
+  const { latestAnnouncement, showNotification, closeNotification } = useAnnouncements();
+
+  // Debug logs
+  useEffect(() => {
+    console.log('App - showNotification:', showNotification);
+    console.log('App - latestAnnouncement:', latestAnnouncement?.title);
+  }, [showNotification, latestAnnouncement]);
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -22,7 +30,24 @@ const AppContent = () => {
   if (showSplash || loading) return <SplashScreen />;
 
   // Redirect based on user status
-  if (user?.status === 'approved') return <HomeScreen />;
+  if (user?.status === 'approved') return (
+    <>
+      <HomeScreen />
+      <AnnouncementNotification
+        announcement={latestAnnouncement}
+        visible={showNotification}
+        onClose={() => {
+          console.log('Closing notification manually');
+          closeNotification();
+        }}
+        onPress={() => {
+          console.log('Notification pressed');
+          closeNotification();
+          // Handle navigation if needed
+        }}
+      />
+    </>
+  );
   if (user?.status === 'pending') return <PendingApprovalScreen onBackToLogin={() => setCurrentScreen('login')} />;
 
   return currentScreen === 'login' ? (
@@ -48,10 +73,12 @@ export default function App() {
 
   return (
     <AuthProvider>
-      <SafeAreaProvider>
-        <AppContent />
-        <StatusBar style="light" />
-      </SafeAreaProvider>
+      <AnnouncementProvider>
+        <SafeAreaProvider>
+          <AppContent />
+          <StatusBar style="light" />
+        </SafeAreaProvider>
+      </AnnouncementProvider>
     </AuthProvider>
   );
 }

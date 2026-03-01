@@ -2,6 +2,7 @@ import { View, Text, TouchableOpacity, Dimensions, Platform, Animated, Image, Mo
 import { useState } from 'react';
 import { Users, Shield, Settings, LogOut, AlertTriangle, Phone, Info, Award, Briefcase, Megaphone } from 'lucide-react-native';
 import { useAuth } from '../../context';
+import { useAnnouncements } from '../../context/AnnouncementContext';
 import { Button } from './Button';
 
 const { width, height } = Dimensions.get('window');
@@ -10,10 +11,12 @@ interface DrawerProps {
   isOpen: boolean;
   onClose: () => void;
   drawerAnim: Animated.Value;
+  onNavigateToAnnouncements?: () => void;
 }
 
-export const Drawer = ({ isOpen, onClose, drawerAnim }: DrawerProps) => {
+export const Drawer = ({ isOpen, onClose, drawerAnim, onNavigateToAnnouncements }: DrawerProps) => {
   const { user, logout } = useAuth();
+  const { unreadCount } = useAnnouncements();
   const [showLogoutModal, setShowLogoutModal] = useState(false);
 
   const handleLogout = async () => {
@@ -92,9 +95,14 @@ export const Drawer = ({ isOpen, onClose, drawerAnim }: DrawerProps) => {
         </View>
 
         <View className="flex-1 px-4 py-6">
-          <TouchableOpacity className="flex-row items-center py-3 px-4 rounded-lg">
+          <TouchableOpacity onPress={onNavigateToAnnouncements} className="flex-row items-center py-3 px-4 rounded-lg">
             <Megaphone size={22} color="#1B365D" strokeWidth={2} />
             <Text className="text-[#1B365D] text-base ml-4" style={{ fontFamily: 'Inter-Medium' }}>Announcements</Text>
+            {unreadCount > 0 && (
+              <View style={{ backgroundColor: '#EF4444', borderRadius: 10, minWidth: 20, height: 20, alignItems: 'center', justifyContent: 'center', marginLeft: 'auto' }}>
+                <Text style={{ color: 'white', fontSize: 12, fontWeight: '700' }}>{unreadCount > 99 ? '99+' : unreadCount}</Text>
+              </View>
+            )}
           </TouchableOpacity>
 
           <TouchableOpacity className="flex-row items-center py-3 px-4 rounded-lg">
