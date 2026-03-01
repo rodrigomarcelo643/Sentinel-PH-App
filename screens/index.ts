@@ -7,3 +7,4 @@ export { ReportScreen } from './ReportScreen';
 export { AiDoctorAssistantScreen } from './AiDoctorAssistantScreen';
 export { AnnouncementsScreen } from './AnnouncementsScreen';
 export { AnnouncementDetailScreen } from './AnnouncementDetailScreen';
+export { QRScreen } from './QRScreen';
