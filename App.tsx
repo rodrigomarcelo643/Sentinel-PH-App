@@ -2,7 +2,7 @@ import { StatusBar } from 'expo-status-bar';
 import { useState, useEffect } from 'react';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { SplashScreen } from './components/screens/SplashScreen';
-import { LoginScreen, MultiStepRegisterScreen, PendingApprovalScreen, HomeScreen } from './screens';
+import { LoginScreen, MultiStepRegisterScreen, PendingApprovalScreen, HomeScreen, AnnouncementDetailScreen } from './screens';
 import { AuthProvider, useAuth, AnnouncementProvider, useAnnouncements } from './context';
 import { AnnouncementNotification } from './components/ui/AnnouncementNotification';
 import { useFonts } from 'expo-font';
@@ -11,6 +11,8 @@ import './global.css';
 const AppContent = () => {
   const [showSplash, setShowSplash] = useState(true);
   const [currentScreen, setCurrentScreen] = useState<'login' | 'register' | 'pending'>('login');
+    const [showAnnouncementDetail, setShowAnnouncementDetail] = useState(false);
+  const [modalAnnouncement, setModalAnnouncement] = useState<any>(null);
   const { user, loading } = useAuth();
   const { latestAnnouncement, showNotification, closeNotification } = useAnnouncements();
 
@@ -30,24 +32,40 @@ const AppContent = () => {
   if (showSplash || loading) return <SplashScreen />;
 
   // Redirect based on user status
-  if (user?.status === 'approved') return (
-    <>
-      <HomeScreen />
-      <AnnouncementNotification
-        announcement={latestAnnouncement}
-        visible={showNotification}
-        onClose={() => {
-          console.log('Closing notification manually');
-          closeNotification();
-        }}
-        onPress={() => {
-          console.log('Notification pressed');
-          closeNotification();
-          // Handle navigation if needed
-        }}
-      />
-    </>
-  );
+  if (user?.status === 'approved') {
+    // Show announcement detail screen when modal is clicked
+    if (showAnnouncementDetail && modalAnnouncement) {
+      return (
+        <AnnouncementDetailScreen 
+          announcement={modalAnnouncement}
+          onBack={() => {
+            setShowAnnouncementDetail(false);
+            setModalAnnouncement(null);
+          }}
+        />
+      );
+    }
+    
+    return (
+      <>
+        <HomeScreen />
+        <AnnouncementNotification
+          announcement={latestAnnouncement}
+          visible={showNotification}
+          onClose={() => {
+            console.log('Closing notification manually');
+            closeNotification();
+          }}
+          onPress={() => {
+            console.log('Notification pressed - navigating to detail');
+            closeNotification();
+            setModalAnnouncement(latestAnnouncement);
+            setShowAnnouncementDetail(true);
+          }}
+        />
+      </>
+    );
+  }
   if (user?.status === 'pending') return <PendingApprovalScreen onBackToLogin={() => setCurrentScreen('login')} />;
 
   return currentScreen === 'login' ? (

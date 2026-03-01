@@ -37,36 +37,47 @@ export const AnnouncementDetailScreen = ({ announcement, onBack }: AnnouncementD
 
   return (
     <View style={{ flex: 1, backgroundColor: '#F9FAFB' }}>
-      <View style={{ paddingTop: (StatusBar.currentHeight || 0) + 50, paddingHorizontal: 20, paddingBottom: 16, backgroundColor: '#1B365D' }}>
+      <View style={{ paddingTop: (StatusBar.currentHeight || 0) + 20, paddingHorizontal: 20, paddingBottom: 12, backgroundColor: '#1B365D' }}>
         <View style={{ flexDirection: 'row', alignItems: 'center' }}>
           <TouchableOpacity onPress={onBack} style={{ marginRight: 16 }}>
             <ArrowLeft size={24} color="white" strokeWidth={2} />
           </TouchableOpacity>
-          <Text style={{ fontSize: 20, fontWeight: '700', color: 'white', fontFamily: 'Inter-SemiBold' }}>Announcement Details</Text>
+          <Text style={{ fontSize: 18, fontWeight: '700', color: 'white', fontFamily: 'Inter-SemiBold' }}>Announcement Details</Text>
         </View>
       </View>
 
       <ScrollView style={{ flex: 1 }} contentContainerStyle={{ padding: 16 }}>
-        <View style={{ backgroundColor: style.bg, borderLeftWidth: 6, borderLeftColor: style.border, borderRadius: 16, padding: 20, marginBottom: 16 }}>
-          <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 12 }}>
-            <Icon size={28} color={style.border} strokeWidth={2} />
-            <Text style={{ fontSize: 14, fontWeight: '600', color: style.border, marginLeft: 12 }}>{style.label}</Text>
+        {/* Type Badge */}
+        <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 16 }}>
+          <Icon size={20} color={style.border} strokeWidth={2} />
+          <View style={{ backgroundColor: style.bg, paddingHorizontal: 12, paddingVertical: 4, borderRadius: 6, marginLeft: 8, borderWidth: 1, borderColor: style.border }}>
+            <Text style={{ fontSize: 12, fontWeight: '700', color: style.border }}>{style.label}</Text>
           </View>
-          <Text style={{ fontSize: 22, fontWeight: '700', color: '#1F2937', marginBottom: 16 }}>{announcement.title}</Text>
+        </View>
+
+        {/* Title */}
+        <Text style={{ fontSize: 24, fontWeight: '800', color: '#1F2937', marginBottom: 16, lineHeight: 30 }}>{announcement.title}</Text>
+
+        {/* Message */}
+        <View style={{ backgroundColor: 'white', borderRadius: 8, padding: 16, marginBottom: 16, shadowColor: '#000', shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.05, shadowRadius: 2, elevation: 1 }}>
           <Text style={{ fontSize: 16, color: '#374151', lineHeight: 24 }}>{announcement.message}</Text>
         </View>
 
-        <View style={{ backgroundColor: 'white', borderRadius: 12, padding: 16, shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.1, shadowRadius: 4, elevation: 3 }}>
+        {/* Metadata */}
+        <View style={{ backgroundColor: 'white', borderRadius: 8, padding: 16, shadowColor: '#000', shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.05, shadowRadius: 2, elevation: 1 }}>
           <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 12 }}>
-            <Calendar size={18} color="#6B7280" strokeWidth={2} />
-            <Text style={{ fontSize: 14, color: '#6B7280', marginLeft: 8 }}>
-              {announcement.createdAt?.toDate?.()?.toLocaleString() || 'Recent'}
-            </Text>
+            <Calendar size={16} color="#6B7280" strokeWidth={2} />
+            <Text style={{ fontSize: 14, color: '#6B7280', marginLeft: 8, fontWeight: '500' }}>Published</Text>
           </View>
+          <Text style={{ fontSize: 15, color: '#1F2937', marginBottom: 16, fontWeight: '600' }}>
+            {announcement.createdAt?.toDate?.()?.toLocaleString() || 'Recent'}
+          </Text>
+          
           <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-            <User size={18} color="#6B7280" strokeWidth={2} />
-            <Text style={{ fontSize: 14, color: '#6B7280', marginLeft: 8 }}>Posted by {announcement.createdBy}</Text>
+            <User size={16} color="#6B7280" strokeWidth={2} />
+            <Text style={{ fontSize: 14, color: '#6B7280', marginLeft: 8, fontWeight: '500' }}>Posted by</Text>
           </View>
+          <Text style={{ fontSize: 15, color: '#1F2937', fontWeight: '600' }}>{announcement.createdBy}</Text>
         </View>
       </ScrollView>
     </View>

@@ -30,12 +30,12 @@ export const AnnouncementsScreen = ({ onBack, onSelectAnnouncement }: Announceme
 
   return (
     <View style={{ flex: 1, backgroundColor: '#F9FAFB' }}>
-      <View style={{ paddingTop: (StatusBar.currentHeight || 0) + 50, paddingHorizontal: 20, paddingBottom: 16, backgroundColor: '#1B365D' }}>
+      <View style={{ paddingTop: (StatusBar.currentHeight || 0) + 20, paddingHorizontal: 20, paddingBottom: 12, backgroundColor: '#1B365D' }}>
         <View style={{ flexDirection: 'row', alignItems: 'center' }}>
           <TouchableOpacity onPress={onBack} style={{ marginRight: 16 }}>
             <ArrowLeft size={24} color="white" strokeWidth={2} />
           </TouchableOpacity>
-          <Text style={{ fontSize: 20, fontWeight: '700', color: 'white', fontFamily: 'Inter-SemiBold' }}>BHW Announcements</Text>
+          <Text style={{ fontSize: 18, fontWeight: '700', color: 'white', fontFamily: 'Inter-SemiBold' }}>BHW Announcements</Text>
         </View>
       </View>
 
@@ -49,7 +49,7 @@ export const AnnouncementsScreen = ({ onBack, onSelectAnnouncement }: Announceme
             <TouchableOpacity
               key={announcement.id}
               onPress={() => onSelectAnnouncement(announcement)}
-              style={{ backgroundColor: 'white', borderLeftWidth: 4, borderLeftColor: style.border, borderRadius: 12, padding: 16, marginBottom: 12, shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.1, shadowRadius: 4, elevation: 3 }}
+              style={{ backgroundColor: 'white', borderLeftWidth: 4, borderLeftColor: style.border, borderRadius: 2, padding: 16, marginBottom: 12, shadowColor: '#000', shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.05, shadowRadius: 2, elevation: 1 }}
             >
               <View style={{ flexDirection: 'row', alignItems: 'flex-start' }}>
                 {isUnread && <View style={{ width: 8, height: 8, borderRadius: 4, backgroundColor: style.border, marginRight: 12, marginTop: 6 }} />}
