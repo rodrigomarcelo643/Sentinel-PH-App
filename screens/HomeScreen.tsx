@@ -6,6 +6,7 @@ import { ReportScreen } from './ReportScreen';
 import { AiDoctorAssistantScreen } from './AiDoctorAssistantScreen';
 import { AnnouncementsScreen } from './AnnouncementsScreen';
 import { AnnouncementDetailScreen } from './AnnouncementDetailScreen';
+import { QRScreen } from './QRScreen';
 import { Drawer } from '../components/ui';
 import { useAuth } from '../context';
 import { useAnnouncements } from '../context/AnnouncementContext';
@@ -15,7 +16,7 @@ import Svg, { Path } from 'react-native-svg';
 const { width } = Dimensions.get('window');
 
 export const HomeScreen = () => {
-  const [activeTab, setActiveTab] = useState<'home' | 'history' | 'map' | 'profile' | 'report' | 'aiDoctor' | 'announcements' | 'announcementDetail'>('home');
+  const [activeTab, setActiveTab] = useState<'home' | 'history' | 'map' | 'profile' | 'report' | 'aiDoctor' | 'announcements' | 'announcementDetail' | 'qr'>('home');
   const [selectedAnnouncement, setSelectedAnnouncement] = useState<Announcement | null>(null);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const { user } = useAuth();
@@ -44,9 +45,10 @@ export const HomeScreen = () => {
       case 'home': return <HomeTab />;
       case 'history': return <HistoryTab onNavigateToAiDoctor={() => setActiveTab('aiDoctor')} />;
       case 'map': return <MapTab />;
-      case 'profile': return <ProfileTab />;
+      case 'profile': return <ProfileTab navigation={{ navigate: (screen: string) => setActiveTab(screen as any) }} />;
       case 'report': return <ReportScreen onBack={() => setActiveTab('home')} />;
       case 'aiDoctor': return <AiDoctorAssistantScreen onBack={() => setActiveTab('history')} />;
+      case 'qr': return <QRScreen navigation={{ goBack: () => setActiveTab('profile') }} />;
       case 'announcements': return (
         <AnnouncementsScreen 
           onBack={() => setActiveTab('home')} 
@@ -65,7 +67,7 @@ export const HomeScreen = () => {
     }
   };
 
-  if (activeTab === 'report' || activeTab === 'aiDoctor' || activeTab === 'announcements' || activeTab === 'announcementDetail') return renderContent();
+  if (activeTab === 'report' || activeTab === 'aiDoctor' || activeTab === 'announcements' || activeTab === 'announcementDetail' || activeTab === 'qr') return renderContent();
 
   const center = width / 2;
   const curveWidth = 65;
