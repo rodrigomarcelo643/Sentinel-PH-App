@@ -30,6 +30,10 @@ export const AnnouncementDetailScreen = ({ announcement, onBack }: AnnouncementD
   const { markAsRead } = useAnnouncements();
   const style = getAnnouncementStyle(announcement.type);
   const Icon = style.icon;
+  const isOutbreak = announcement.type === 'outbreak_alert';
+  const formattedDate = announcement.createdAt?.toDate?.();
+  const dateStr = formattedDate?.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }) || 'Recent';
+  const timeStr = formattedDate?.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }) || '';
 
   useEffect(() => {
     markAsRead(announcement.id);
@@ -46,38 +50,41 @@ export const AnnouncementDetailScreen = ({ announcement, onBack }: AnnouncementD
         </View>
       </View>
 
-      <ScrollView style={{ flex: 1 }} contentContainerStyle={{ padding: 16 }}>
-        {/* Type Badge */}
-        <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 16 }}>
-          <Icon size={20} color={style.border} strokeWidth={2} />
-          <View style={{ backgroundColor: style.bg, paddingHorizontal: 12, paddingVertical: 4, borderRadius: 6, marginLeft: 8, borderWidth: 1, borderColor: style.border }}>
-            <Text style={{ fontSize: 12, fontWeight: '700', color: style.border }}>{style.label}</Text>
+      <ScrollView style={{ flex: 1 }} contentContainerStyle={{ padding: 20 }}>
+        {/* News Header */}
+        <View style={{ marginBottom: 24 }}>
+          {/* Type Badge */}
+          <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 16 }}>
+            <View style={{ backgroundColor: style.bg, paddingHorizontal: 12, paddingVertical: 6, borderRadius: 6, borderWidth: 1, borderColor: style.border, flexDirection: 'row', alignItems: 'center' }}>
+              <Icon size={16} color={style.border} strokeWidth={2.5} />
+              <Text style={{ fontSize: 13, fontWeight: '700', color: style.border, marginLeft: 6, letterSpacing: 0.3 }}>{isOutbreak ? 'OUTBREAK' : style.label.toUpperCase()}</Text>
+            </View>
+          </View>
+
+          {/* Title */}
+          <Text style={{ fontSize: 28, fontWeight: '800', color: '#111827', marginBottom: 20, lineHeight: 36, fontFamily: 'Inter-SemiBold' }}>{announcement.title}</Text>
+
+          {/* Meta Information */}
+          <View style={{ borderTopWidth: 1, borderBottomWidth: 1, borderColor: '#E5E7EB', paddingVertical: 12,  }}>
+            <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 10 }}>
+              <User size={18} color="#1B365D" strokeWidth={2} />
+              <Text style={{ fontSize: 15, color: '#1F2937', marginLeft: 8, fontWeight: '600' }}>Posted by {announcement.createdBy}</Text>
+            </View>
+            <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+              <Calendar size={18} color="#6B7280" strokeWidth={2} />
+              <Text style={{ fontSize: 14, color: '#6B7280', marginLeft: 8 }}>{dateStr} at {timeStr}</Text>
+            </View>
           </View>
         </View>
 
-        {/* Title */}
-        <Text style={{ fontSize: 24, fontWeight: '800', color: '#1F2937', marginBottom: 16, lineHeight: 30 }}>{announcement.title}</Text>
-
-        {/* Message */}
-        <View style={{ backgroundColor: 'white', borderRadius: 8, padding: 16, marginBottom: 16, shadowColor: '#000', shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.05, shadowRadius: 2, elevation: 1 }}>
-          <Text style={{ fontSize: 16, color: '#374151', lineHeight: 24 }}>{announcement.message}</Text>
+        {/* Article Content */}
+        <View style={{ backgroundColor: 'white', borderRadius: 2, padding: 20, shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.08, shadowRadius: 4, elevation: 2 }}>
+          <Text style={{ fontSize: 17, color: '#374151', lineHeight: 28, fontFamily: 'Inter-Medium' }}>{announcement.message}</Text>
         </View>
 
-        {/* Metadata */}
-        <View style={{ backgroundColor: 'white', borderRadius: 8, padding: 16, shadowColor: '#000', shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.05, shadowRadius: 2, elevation: 1 }}>
-          <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 12 }}>
-            <Calendar size={16} color="#6B7280" strokeWidth={2} />
-            <Text style={{ fontSize: 14, color: '#6B7280', marginLeft: 8, fontWeight: '500' }}>Published</Text>
-          </View>
-          <Text style={{ fontSize: 15, color: '#1F2937', marginBottom: 16, fontWeight: '600' }}>
-            {announcement.createdAt?.toDate?.()?.toLocaleString() || 'Recent'}
-          </Text>
-          
-          <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-            <User size={16} color="#6B7280" strokeWidth={2} />
-            <Text style={{ fontSize: 14, color: '#6B7280', marginLeft: 8, fontWeight: '500' }}>Posted by</Text>
-          </View>
-          <Text style={{ fontSize: 15, color: '#1F2937', fontWeight: '600' }}>{announcement.createdBy}</Text>
+        {/* Footer Divider */}
+        <View style={{ marginTop: 24, paddingTop: 20, borderTopWidth: 1, borderColor: '#E5E7EB' }}>
+          <Text style={{ fontSize: 12, color: '#9CA3AF', textAlign: 'center', fontStyle: 'italic' }}>End of announcement</Text>
         </View>
       </ScrollView>
     </View>
