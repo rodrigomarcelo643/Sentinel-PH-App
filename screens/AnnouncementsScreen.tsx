@@ -11,17 +11,17 @@ interface AnnouncementsScreenProps {
 const getAnnouncementStyle = (type: string) => {
   switch (type) {
     case 'health_advisory':
-      return { border: '#10B981', bg: '#D1FAE5', icon: Heart };
+      return { border: '#10B981', bg: '#D1FAE5', icon: Heart, label: 'HEALTH ADVISORY' };
     case 'outbreak_alert':
-      return { border: '#EF4444', bg: '#FEE2E2', icon: AlertTriangle };
+      return { border: '#EF4444', bg: '#FEE2E2', icon: AlertTriangle, label: 'OUTBREAK' };
     case 'medical_supplies':
-      return { border: '#3B82F6', bg: '#DBEAFE', icon: Package };
+      return { border: '#3B82F6', bg: '#DBEAFE', icon: Package, label: 'MEDICAL SUPPLIES' };
     case 'water_advisory':
-      return { border: '#06B6D4', bg: '#CFFAFE', icon: Droplet };
+      return { border: '#06B6D4', bg: '#CFFAFE', icon: Droplet, label: 'WATER ADVISORY' };
     case 'vaccination_drive':
-      return { border: '#8B5CF6', bg: '#EDE9FE', icon: Syringe };
+      return { border: '#8B5CF6', bg: '#EDE9FE', icon: Syringe, label: 'VACCINATION DRIVE' };
     default:
-      return { border: '#6B7280', bg: '#F3F4F6', icon: Info };
+      return { border: '#6B7280', bg: '#F3F4F6', icon: Info, label: 'GENERAL' };
   }
 };
 
@@ -44,6 +44,7 @@ export const AnnouncementsScreen = ({ onBack, onSelectAnnouncement }: Announceme
           const style = getAnnouncementStyle(announcement.type);
           const Icon = style.icon;
           const isUnread = !readAnnouncements.includes(announcement.id);
+          const isOutbreak = announcement.type === 'outbreak_alert';
 
           return (
             <TouchableOpacity
@@ -51,6 +52,12 @@ export const AnnouncementsScreen = ({ onBack, onSelectAnnouncement }: Announceme
               onPress={() => onSelectAnnouncement(announcement)}
               style={{ backgroundColor: 'white', borderLeftWidth: 4, borderLeftColor: style.border, borderRadius: 2, padding: 16, marginBottom: 12, shadowColor: '#000', shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.05, shadowRadius: 2, elevation: 1 }}
             >
+              {/* Type Badge */}
+              <View style={{ position: 'absolute', top: -6, right: 12, backgroundColor: style.border, paddingHorizontal: 10, paddingVertical: 4, borderRadius: 12, flexDirection: 'row', alignItems: 'center', shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.2, shadowRadius: 3, elevation: 3 }}>
+                <Icon size={12} color="white" strokeWidth={2.5} />
+                <Text style={{ fontSize: 10, fontWeight: '800', color: 'white', marginLeft: 4, letterSpacing: 0.5 }}>{style.label}</Text>
+              </View>
+
               <View style={{ flexDirection: 'row', alignItems: 'flex-start' }}>
                 {isUnread && <View style={{ width: 8, height: 8, borderRadius: 4, backgroundColor: style.border, marginRight: 12, marginTop: 6 }} />}
                 <Icon size={24} color={style.border} strokeWidth={2} style={{ marginRight: 12 }} />
