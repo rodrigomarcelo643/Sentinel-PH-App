@@ -52,7 +52,7 @@ export const HomeScreen = () => {
 
   const renderContent = () => {
     switch (activeTab) {
-      case 'home': return <HomeTab />;
+      case 'home': return <HomeTab onNavigateToMap={() => setActiveTab('map')} onNavigateToAnnouncements={() => setActiveTab('announcements')} onNavigateToHistory={() => setActiveTab('history')} />;
       case 'history': return <HistoryTab onNavigateToAiDoctor={() => setActiveTab('aiDoctor')} />;
       case 'map': return <MapTab />;
       case 'profile': return <ProfileTab navigation={{ navigate: (screen: string) => setActiveTab(screen as any) }} />;
