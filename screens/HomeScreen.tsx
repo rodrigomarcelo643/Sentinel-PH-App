@@ -40,6 +40,16 @@ export const HomeScreen = () => {
     }
   };
 
+  const closeDrawer = () => {
+    if (drawerOpen) {
+      Animated.timing(drawerAnim, {
+        toValue: -width * 0.7,
+        duration: 300,
+        useNativeDriver: true,
+      }).start(() => setDrawerOpen(false));
+    }
+  };
+
   const renderContent = () => {
     switch (activeTab) {
       case 'home': return <HomeTab />;
@@ -51,7 +61,10 @@ export const HomeScreen = () => {
       case 'qr': return <QRScreen navigation={{ goBack: () => setActiveTab('profile') }} />;
       case 'announcements': return (
         <AnnouncementsScreen 
-          onBack={() => setActiveTab('home')} 
+          onBack={() => {
+            setActiveTab('home');
+            closeDrawer();
+          }} 
           onSelectAnnouncement={(announcement) => {
             setSelectedAnnouncement(announcement);
             setActiveTab('announcementDetail');
@@ -61,7 +74,10 @@ export const HomeScreen = () => {
       case 'announcementDetail': return selectedAnnouncement ? (
         <AnnouncementDetailScreen 
           announcement={selectedAnnouncement}
-          onBack={() => setActiveTab('announcements')}
+          onBack={() => {
+            setActiveTab('announcements');
+            closeDrawer();
+          }}
         />
       ) : null;
     }
@@ -95,8 +111,8 @@ export const HomeScreen = () => {
         onClose={toggleDrawer} 
         drawerAnim={drawerAnim} 
         onNavigateToAnnouncements={() => {
-          setActiveTab('announcements');
           toggleDrawer();
+          setTimeout(() => setActiveTab('announcements'), 300);
         }}
       />
 
