@@ -7,14 +7,15 @@ interface DetailsStepProps {
   description: string;
   location: string;
   barangay: string;
+  coordinates: { latitude: number; longitude: number } | null;
   proofImage: string | null;
   onDescriptionChange: (text: string) => void;
-  onLocationChange: (location: string, barangay: string) => void;
+  onLocationChange: (location: string, barangay: string, coordinates: { latitude: number; longitude: number } | null) => void;
   onImageSelect: (uri: string) => void;
   onOpenCamera: () => void;
 }
 
-export const DetailsStep = ({ description, location, barangay, proofImage, onDescriptionChange, onLocationChange, onImageSelect, onOpenCamera }: DetailsStepProps) => {
+export const DetailsStep = ({ description, location, barangay, coordinates, proofImage, onDescriptionChange, onLocationChange, onImageSelect, onOpenCamera }: DetailsStepProps) => {
   const [loadingLocation, setLoadingLocation] = useState(true);
   const [imageLoading, setImageLoading] = useState(false);
 
@@ -33,28 +34,10 @@ export const DetailsStep = ({ description, location, barangay, proofImage, onDes
 
       const loc = await Location.getCurrentPositionAsync({});
       const { latitude, longitude } = loc.coords;
-
-      const response = await fetch(
-        `https://maps.googleapis.com/maps/api/geocode/json?latlng=${latitude},${longitude}&key=${process.env.EXPO_PUBLIC_GOOGLE_MAPS_API_KEY}`
-      );
-      const data = await response.json();
-
-      if (data.results[0]) {
-        const addressComponents = data.results[0].address_components;
-        let brgy = '';
-        
-        addressComponents.forEach((component: any) => {
-          if (component.types.includes('sublocality_level_1') || 
-              component.types.includes('sublocality') || 
-              component.types.includes('neighborhood')) {
-            brgy = component.long_name;
-          }
-        });
-
-        onLocationChange(data.results[0].formatted_address, brgy);
-      }
+      
+      onLocationChange('', '', { latitude, longitude });
     } catch (error) {
-      // Silent fail
+      console.error('Location error:', error);
     } finally {
       setLoadingLocation(false);
     }
@@ -97,28 +80,48 @@ export const DetailsStep = ({ description, location, barangay, proofImage, onDes
         <Text style={{ fontSize: 14, fontWeight: '600', color: '#1B365D', marginBottom: 8, fontFamily: 'Inter-SemiBold' }}>
           Location
         </Text>
+        <TextInput
+          value={location}
+          onChangeText={(text) => onLocationChange(text, barangay, coordinates)}
+          placeholder="Enter location Name"
+          style={{
+            borderWidth: 1,
+            borderColor: '#E5E7EB',
+            borderRadius: 12,
+            padding: 12,
+            fontSize: 14,
+            color: '#1F2937',
+            fontFamily: 'Inter-Medium',
+            backgroundColor: 'white',
+            marginBottom: 8
+          }}
+        />
+        <TextInput
+          value={barangay}
+          onChangeText={(text) => onLocationChange(location, text, coordinates)}
+          placeholder="Barangay"
+          style={{
+            borderWidth: 1,
+            borderColor: '#E5E7EB',
+            borderRadius: 12,
+            padding: 12,
+            fontSize: 14,
+            color: '#1F2937',
+            fontFamily: 'Inter-Medium',
+            backgroundColor: 'white',
+            marginBottom: 8
+          }}
+        />
         {loadingLocation ? (
-          <View style={{ backgroundColor: '#F9FAFB', borderRadius: 12, padding: 16, flexDirection: 'row', alignItems: 'center' }}>
+          <View style={{ backgroundColor: '#F9FAFB', borderRadius: 12, padding: 12, flexDirection: 'row', alignItems: 'center' }}>
             <ActivityIndicator size="small" color="#1B365D" />
-            <Text style={{ fontSize: 14, color: '#6B7280', marginLeft: 12, fontFamily: 'Inter-Medium' }}>Getting your location...</Text>
+            <Text style={{ fontSize: 12, color: '#6B7280', marginLeft: 8, fontFamily: 'Inter-Medium' }}>Getting coordinates...</Text>
           </View>
-        ) : location ? (
-          <View style={{ backgroundColor: '#EFF6FF', borderWidth: 1, borderColor: '#1B365D', borderRadius: 12, padding: 12 }}>
-            <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 8 }}>
-              <MapPin size={16} color="#1B365D" strokeWidth={2} />
-              <Text style={{ fontSize: 12, color: '#1B365D', marginLeft: 6, fontFamily: 'Inter-SemiBold' }}>Current Location</Text>
-            </View>
-            <Text style={{ fontSize: 12, color: '#6B7280', fontFamily: 'Inter-Medium' }}>{location}</Text>
-            {barangay && (
-              <Text style={{ fontSize: 13, color: '#1B365D', fontWeight: '600', marginTop: 4, fontFamily: 'Inter-SemiBold' }}>
-                Barangay: {barangay}
-              </Text>
-            )}
-          </View>
-        ) : (
-          <View style={{ backgroundColor: '#FEE2E2', borderRadius: 12, padding: 12 }}>
-            <Text style={{ fontSize: 14, color: '#DC2626', fontFamily: 'Inter-Medium' }}>Failed to get location</Text>
-          </View>
+        ) : null}
+        {coordinates && (
+          <Text style={{ fontSize: 10, color: '#6B7280', marginTop: 4, fontFamily: 'Inter-Medium' }}>
+            Coordinates: {coordinates.latitude.toFixed(6)}, {coordinates.longitude.toFixed(6)}
+          </Text>
         )}
       </View>
 
