@@ -1,6 +1,6 @@
 import { View, Text, ScrollView, TouchableOpacity, Animated } from 'react-native';
 import { useAuth } from '../../context';
-import { Shield, Eye, MapPin, ChevronRight, AlertTriangle, CheckCircle, Star, Award, TrendingUp, Users, Activity, Clock } from 'lucide-react-native';
+import { Shield, Eye, MapPin, ChevronRight, AlertTriangle, CheckCircle, Star, TrendingUp, Users, Activity, Clock, FileText } from 'lucide-react-native';
 import { useEffect, useRef, useState } from 'react';
 import { subscribeToSymptomReports, SymptomReport } from '../../services/symptomReports';
 import { useAnnouncements } from '../../context/AnnouncementContext';
@@ -41,7 +41,7 @@ export const HomeTab = ({ onNavigateToMap, onNavigateToAnnouncements, onNavigate
   const pendingReports = userReports.filter(r => r.status === 'pending');
   const recentReports = userReports.slice(0, 2);
   
-  const totalCredits = verifiedReports.length * 15;
+  const selfReportedCount = userReports.filter(r => r.reportType === 'self').length;
   
   const recentAlerts = announcements
     .filter(a => a.type === 'outbreak_alert' || a.type === 'health_advisory')
@@ -112,9 +112,9 @@ export const HomeTab = ({ onNavigateToMap, onNavigateToAnnouncements, onNavigate
           <Text className="text-[#1B365D] text-xl font-bold" style={{ fontFamily: 'Inter-SemiBold' }}>{userReports.length}</Text>
         </View>
         <View style={{ flex: 1, backgroundColor: 'white', borderRadius: 12, padding: 16, shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.1, shadowRadius: 4, elevation: 3 }}>
-          <Award size={24} color="#10B981" strokeWidth={2} />
-          <Text className="text-gray-600 text-xs mt-2" style={{ fontFamily: 'Inter-Medium' }}>Load Credits</Text>
-          <Text className="text-[#1B365D] text-xl font-bold" style={{ fontFamily: 'Inter-SemiBold' }}>₱{totalCredits}</Text>
+          <FileText size={24} color="#8B5CF6" strokeWidth={2} />
+          <Text className="text-gray-600 text-xs mt-2" style={{ fontFamily: 'Inter-Medium' }}>My Self Reported Symptoms</Text>
+          <Text className="text-[#1B365D] text-xl font-bold" style={{ fontFamily: 'Inter-SemiBold' }}>{selfReportedCount}</Text>
         </View>
       </View>
 
@@ -229,7 +229,7 @@ export const HomeTab = ({ onNavigateToMap, onNavigateToAnnouncements, onNavigate
                 </View>
                 <View style={{ flex: 1 }}>
                   <Text className="text-[#1B365D] font-semibold" style={{ fontFamily: 'Inter-SemiBold' }}>{title}</Text>
-                  <Text className="text-gray-500 text-xs mt-1" style={{ fontFamily: 'Inter-Medium' }}>{getTimeAgo(report.createdAt)}{isVerified ? ' • +₱15 load credit earned' : ''}</Text>
+                  <Text className="text-gray-500 text-xs mt-1" style={{ fontFamily: 'Inter-Medium' }}>{getTimeAgo(report.createdAt)}</Text>
                 </View>
                 <View style={{ backgroundColor: bgColor, paddingHorizontal: 8, paddingVertical: 4, borderRadius: 12 }}>
                   <Text className="text-xs font-semibold" style={{ fontFamily: 'Inter-SemiBold', color: iconColor }}>{statusText}</Text>
