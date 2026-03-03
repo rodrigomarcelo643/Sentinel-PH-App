@@ -40,7 +40,6 @@ export const ReportScreen = ({ onBack }: ReportScreenProps) => {
   const [customSymptom, setCustomSymptom] = useState('');
   const [description, setDescription] = useState('');
   const [location, setLocation] = useState('');
-  const [barangay, setBarangay] = useState('');
   const [coordinates, setCoordinates] = useState<{ latitude: number; longitude: number } | null>(null);
   const [proofImage, setProofImage] = useState<string | null>(null);
   const [showProofCamera, setShowProofCamera] = useState(false);
@@ -99,10 +98,9 @@ export const ReportScreen = ({ onBack }: ReportScreenProps) => {
         customSymptom,
         description,
         location,
-        barangay,
         proofImageUrl,
-        latitude: loc.latitude,
-        longitude: loc.longitude,
+        latitude: loc?.latitude || 0,
+        longitude: loc?.longitude || 0,
         status: 'pending',
         createdAt: serverTimestamp(),
       });
@@ -134,13 +132,11 @@ export const ReportScreen = ({ onBack }: ReportScreenProps) => {
           <DetailsStep
             description={description}
             location={location}
-            barangay={barangay}
             coordinates={coordinates}
             proofImage={proofImage}
             onDescriptionChange={setDescription}
-            onLocationChange={(loc, brgy, coords) => {
+            onLocationChange={(loc, coords) => {
               setLocation(loc);
-              setBarangay(brgy);
               setCoordinates(coords);
             }}
             onImageSelect={setProofImage}
