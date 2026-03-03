@@ -7,6 +7,7 @@ export { Checkbox } from './Checkbox';
 export { Divider } from './Divider';
 export { Input } from './Input';
 export { LocationPicker } from './LocationPicker';
+export { AddressAutocomplete } from './AddressAutocomplete';
 export { Spinner } from './Spinner';
 export { Switch } from './Switch';
 export { StepIndicator } from './StepIndicator';
