@@ -1,6 +1,6 @@
 import { View, Text, TouchableOpacity, Dimensions, Platform, Animated, Image, Modal, StatusBar } from 'react-native';
 import { useState } from 'react';
-import { Users, Shield, Settings, LogOut, AlertTriangle, Phone, Info, Award, Briefcase, Megaphone } from 'lucide-react-native';
+import { Users, LogOut, AlertTriangle, Phone, Briefcase, Megaphone, UserCheck, Award } from 'lucide-react-native';
 import { useAuth } from '../../context';
 import { useAnnouncements } from '../../context/AnnouncementContext';
 import { Button } from './Button';
@@ -12,9 +12,13 @@ interface DrawerProps {
   onClose: () => void;
   drawerAnim: Animated.Value;
   onNavigateToAnnouncements?: () => void;
+  onNavigateToCommunity?: () => void;
+  onNavigateToOutbreaks?: () => void;
+  onNavigateToBHWDirectory?: () => void;
+  onNavigateToEmergencyContacts?: () => void;
 }
 
-export const Drawer = ({ isOpen, onClose, drawerAnim, onNavigateToAnnouncements }: DrawerProps) => {
+export const Drawer = ({ isOpen, onClose, drawerAnim, onNavigateToAnnouncements, onNavigateToCommunity, onNavigateToOutbreaks, onNavigateToBHWDirectory, onNavigateToEmergencyContacts }: DrawerProps) => {
   const { user, logout } = useAuth();
   const { unreadCount } = useAnnouncements();
   const [showLogoutModal, setShowLogoutModal] = useState(false);
@@ -105,42 +109,27 @@ export const Drawer = ({ isOpen, onClose, drawerAnim, onNavigateToAnnouncements 
             )}
           </TouchableOpacity>
 
-          <TouchableOpacity className="flex-row items-center py-3 px-4 rounded-lg">
+          <TouchableOpacity onPress={onNavigateToCommunity} className="flex-row items-center py-3 px-4 rounded-lg">
             <Users size={22} color="#1B365D" strokeWidth={2} />
             <Text className="text-[#1B365D] text-base ml-4" style={{ fontFamily: 'Inter-Medium' }}>Community</Text>
           </TouchableOpacity>
 
-          <TouchableOpacity className="flex-row items-center py-3 px-4 rounded-lg">
+          <TouchableOpacity onPress={onNavigateToOutbreaks} className="flex-row items-center py-3 px-4 rounded-lg">
             <AlertTriangle size={22} color="#1B365D" strokeWidth={2} />
             <Text className="text-[#1B365D] text-base ml-4" style={{ fontFamily: 'Inter-Medium' }}>Recent Outbreaks</Text>
           </TouchableOpacity>
 
-          <TouchableOpacity className="flex-row items-center py-3 px-4 rounded-lg">
-            <Users size={22} color="#1B365D" strokeWidth={2} />
+          <TouchableOpacity onPress={onNavigateToBHWDirectory} className="flex-row items-center py-3 px-4 rounded-lg">
+            <UserCheck size={22} color="#1B365D" strokeWidth={2} />
             <Text className="text-[#1B365D] text-base ml-4" style={{ fontFamily: 'Inter-Medium' }}>BHW Directory</Text>
           </TouchableOpacity>
 
-          <TouchableOpacity className="flex-row items-center py-3 px-4 rounded-lg">
+          <TouchableOpacity onPress={onNavigateToEmergencyContacts} className="flex-row items-center py-3 px-4 rounded-lg">
             <Phone size={22} color="#1B365D" strokeWidth={2} />
             <Text className="text-[#1B365D] text-base ml-4" style={{ fontFamily: 'Inter-Medium' }}>Emergency Contacts</Text>
           </TouchableOpacity>
 
-          <TouchableOpacity className="flex-row items-center py-3 px-4 rounded-lg">
-            <Shield size={22} color="#1B365D" strokeWidth={2} />
-            <Text className="text-[#1B365D] text-base ml-4" style={{ fontFamily: 'Inter-Medium' }}>Safety Tips</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity className="flex-row items-center py-3 px-4 rounded-lg">
-            <Info size={22} color="#1B365D" strokeWidth={2} />
-            <Text className="text-[#1B365D] text-base ml-4" style={{ fontFamily: 'Inter-Medium' }}>About</Text>
-          </TouchableOpacity>
-
           <View className="border-t border-gray-200 my-3" />
-
-          <TouchableOpacity className="flex-row items-center py-3 px-4 rounded-lg">
-            <Settings size={22} color="#1B365D" strokeWidth={2} />
-            <Text className="text-[#1B365D] text-base ml-4" style={{ fontFamily: 'Inter-Medium' }}>Settings</Text>
-          </TouchableOpacity>
 
           <TouchableOpacity onPress={() => setShowLogoutModal(true)} className="flex-row items-center py-3 px-4 rounded-lg">
             <LogOut size={22} color="#EF4444" strokeWidth={2} />
