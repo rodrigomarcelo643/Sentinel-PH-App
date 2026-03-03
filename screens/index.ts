@@ -8,3 +8,8 @@ export { AiDoctorAssistantScreen } from './AiDoctorAssistantScreen';
 export { AnnouncementsScreen } from './AnnouncementsScreen';
 export { AnnouncementDetailScreen } from './AnnouncementDetailScreen';
 export { QRScreen } from './QRScreen';
+export { ForgotPasswordScreen } from './ForgotPasswordScreen';
+export { CommunityScreen } from './CommunityScreen';
+export { RecentOutbreaksScreen } from './RecentOutbreaksScreen';
+export { BHWDirectoryScreen } from './BHWDirectoryScreen';
+export { EmergencyContactsScreen } from './EmergencyContactsScreen';
