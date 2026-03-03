@@ -1,8 +1,7 @@
 import { View, Text, TextInput, Animated, TouchableOpacity, ActivityIndicator } from 'react-native';
 import { Input } from '../ui';
-import { MapPin, ChevronDown } from 'lucide-react-native';
-import { getCurrentLocation } from '../../services';
-import { useEffect, useState } from 'react';
+import { ChevronDown } from 'lucide-react-native';
+import { useState } from 'react';
 
 interface PersonalDetailsStepProps {
   fadeAnim: Animated.Value;
@@ -38,7 +37,6 @@ const COMMUNITY_ROLES = [
   'Barangay Tanod / Leader',
   'Religious Leader / Church Worker',
   'Traditional Healer / Hilot',
-  'Barangay Health Worker',
   'Pharmacy Staff',
   'Pharmacy Owner',
   'Other (Specify)',
@@ -71,24 +69,6 @@ export const PersonalDetailsStep = ({
   errors,
 }: PersonalDetailsStepProps) => {
   const [loadingLocation, setLoadingLocation] = useState(false);
-
-  useEffect(() => {
-    handleAutoFillLocation();
-  }, []);
-
-  const handleAutoFillLocation = async () => {
-    setLoadingLocation(true);
-    try {
-      const location = await getCurrentLocation();
-      setRegion(location.region);
-      setMunicipality(location.municipality);
-      setBarangay(location.barangay);
-    } catch (error) {
-      console.error('Failed to get location:', error);
-    } finally {
-      setLoadingLocation(false);
-    }
-  };
   return (
     <Animated.View style={{ opacity: fadeAnim }}>
       <Text className="text-lg font-semibold text-[#1B365D] mb-4" style={{ fontFamily: 'Inter-SemiBold' }}>
@@ -221,14 +201,6 @@ export const PersonalDetailsStep = ({
         <Text className="text-lg font-semibold text-[#1B365D]" style={{ fontFamily: 'Inter-SemiBold' }}>
           Full Address
         </Text>
-        {loadingLocation && (
-          <View className="flex-row items-center">
-            <ActivityIndicator size="small" color="#20A0D8" />
-            <Text className="text-[#20A0D8] text-sm ml-2 font-medium" style={{ fontFamily: 'Inter-Medium' }}>
-              Getting location...
-            </Text>
-          </View>
-        )}
       </View>
 
       <Input
