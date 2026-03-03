@@ -2,7 +2,7 @@ import { StatusBar } from 'expo-status-bar';
 import { useState, useEffect } from 'react';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { SplashScreen } from './components/screens/SplashScreen';
-import { LoginScreen, MultiStepRegisterScreen, PendingApprovalScreen, HomeScreen, AnnouncementDetailScreen } from './screens';
+import { LoginScreen, MultiStepRegisterScreen, PendingApprovalScreen, HomeScreen, AnnouncementDetailScreen, ForgotPasswordScreen, CommunityScreen, RecentOutbreaksScreen, BHWDirectoryScreen, EmergencyContactsScreen } from './screens';
 import { AuthProvider, useAuth, AnnouncementProvider, useAnnouncements } from './context';
 import { AnnouncementNotification } from './components/ui/AnnouncementNotification';
 import { useFonts } from 'expo-font';
@@ -10,7 +10,7 @@ import './global.css';
 
 const AppContent = () => {
   const [showSplash, setShowSplash] = useState(true);
-  const [currentScreen, setCurrentScreen] = useState<'login' | 'register' | 'pending'>('login');
+  const [currentScreen, setCurrentScreen] = useState<'login' | 'register' | 'pending' | 'forgotPassword'>('login');
     const [showAnnouncementDetail, setShowAnnouncementDetail] = useState(false);
   const [modalAnnouncement, setModalAnnouncement] = useState<any>(null);
   const { user, loading } = useAuth();
@@ -72,9 +72,12 @@ const AppContent = () => {
     <LoginScreen 
       onNavigateToRegister={() => setCurrentScreen('register')} 
       onNavigateToPending={() => setCurrentScreen('pending')}
+      onNavigateToForgotPassword={() => setCurrentScreen('forgotPassword')}
     />
   ) : currentScreen === 'register' ? (
     <MultiStepRegisterScreen onNavigateToLogin={() => setCurrentScreen('login')} />
+  ) : currentScreen === 'forgotPassword' ? (
+    <ForgotPasswordScreen onNavigateBack={() => setCurrentScreen('login')} />
   ) : (
     <PendingApprovalScreen onBackToLogin={() => setCurrentScreen('login')} />
   );
