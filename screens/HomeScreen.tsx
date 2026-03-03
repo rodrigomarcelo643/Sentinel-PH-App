@@ -1,12 +1,16 @@
 import { View, Text, TouchableOpacity, Dimensions, Platform, Image, Animated } from 'react-native';
 import { useState, useRef } from 'react';
-import { Home, History, Map, User, Plus, Bell, Menu } from 'lucide-react-native';
+import { Home, History, Map, MapPinned,  User, Plus, Bell, Menu } from 'lucide-react-native';
 import { HomeTab, HistoryTab, MapTab, ProfileTab } from './tabs';
 import { ReportScreen } from './ReportScreen';
 import { AiDoctorAssistantScreen } from './AiDoctorAssistantScreen';
 import { AnnouncementsScreen } from './AnnouncementsScreen';
 import { AnnouncementDetailScreen } from './AnnouncementDetailScreen';
 import { QRScreen } from './QRScreen';
+import { CommunityScreen } from './CommunityScreen';
+import { RecentOutbreaksScreen } from './RecentOutbreaksScreen';
+import { BHWDirectoryScreen } from './BHWDirectoryScreen';
+import { EmergencyContactsScreen } from './EmergencyContactsScreen';
 import { Drawer } from '../components/ui';
 import { useAuth } from '../context';
 import { useAnnouncements } from '../context/AnnouncementContext';
@@ -16,7 +20,7 @@ import Svg, { Path } from 'react-native-svg';
 const { width } = Dimensions.get('window');
 
 export const HomeScreen = () => {
-  const [activeTab, setActiveTab] = useState<'home' | 'history' | 'map' | 'profile' | 'report' | 'aiDoctor' | 'announcements' | 'announcementDetail' | 'qr'>('home');
+  const [activeTab, setActiveTab] = useState<'home' | 'history' | 'map' | 'profile' | 'report' | 'aiDoctor' | 'announcements' | 'announcementDetail' | 'qr' | 'community' | 'outbreaks' | 'bhwDirectory' | 'emergencyContacts'>('home');
   const [selectedAnnouncement, setSelectedAnnouncement] = useState<Announcement | null>(null);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const { user } = useAuth();
@@ -80,10 +84,14 @@ export const HomeScreen = () => {
           }}
         />
       ) : null;
+      case 'community': return <CommunityScreen onBack={() => { setActiveTab('home'); closeDrawer(); }} />;
+      case 'outbreaks': return <RecentOutbreaksScreen onBack={() => { setActiveTab('home'); closeDrawer(); }} />;
+      case 'bhwDirectory': return <BHWDirectoryScreen onBack={() => { setActiveTab('home'); closeDrawer(); }} />;
+      case 'emergencyContacts': return <EmergencyContactsScreen onBack={() => { setActiveTab('home'); closeDrawer(); }} />;
     }
   };
 
-  if (activeTab === 'report' || activeTab === 'aiDoctor' || activeTab === 'announcements' || activeTab === 'announcementDetail' || activeTab === 'qr') return renderContent();
+  if (activeTab === 'report' || activeTab === 'aiDoctor' || activeTab === 'announcements' || activeTab === 'announcementDetail' || activeTab === 'qr' || activeTab === 'community' || activeTab === 'outbreaks' || activeTab === 'bhwDirectory' || activeTab === 'emergencyContacts') return renderContent();
 
   const center = width / 2;
   const curveWidth = 65;
@@ -113,6 +121,22 @@ export const HomeScreen = () => {
         onNavigateToAnnouncements={() => {
           toggleDrawer();
           setTimeout(() => setActiveTab('announcements'), 300);
+        }}
+        onNavigateToCommunity={() => {
+          toggleDrawer();
+          setTimeout(() => setActiveTab('community'), 300);
+        }}
+        onNavigateToOutbreaks={() => {
+          toggleDrawer();
+          setTimeout(() => setActiveTab('outbreaks'), 300);
+        }}
+        onNavigateToBHWDirectory={() => {
+          toggleDrawer();
+          setTimeout(() => setActiveTab('bhwDirectory'), 300);
+        }}
+        onNavigateToEmergencyContacts={() => {
+          toggleDrawer();
+          setTimeout(() => setActiveTab('emergencyContacts'), 300);
         }}
       />
 
@@ -241,7 +265,7 @@ export const HomeScreen = () => {
           <View style={{ width: 80 }} />
 
           <TouchableOpacity onPress={() => setActiveTab('map')} className="flex-1 items-center">
-            <Map size={22} color={activeTab === 'map' ? '#1B365D' : '#9CA3AF'} strokeWidth={activeTab === 'map' ? 2.5 : 2} />
+            <MapPinned size={22} color={activeTab === 'map' ? '#1B365D' : '#9CA3AF'} strokeWidth={activeTab === 'map' ? 2.5 : 2} />
             <Text style={{ color: activeTab === 'map' ? '#1B365D' : '#9CA3AF', fontSize: 10, marginTop: 5, fontWeight: activeTab === 'map' ? '700' : '500' }}>Map</Text>
           </TouchableOpacity>
 
