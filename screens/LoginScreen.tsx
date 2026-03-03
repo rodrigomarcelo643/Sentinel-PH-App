@@ -8,9 +8,10 @@ import { useAuth } from '../context';
 interface LoginScreenProps {
   onNavigateToRegister: () => void;
   onNavigateToPending: () => void;
+  onNavigateToForgotPassword: () => void;
 }
 
-export const LoginScreen = ({ onNavigateToRegister, onNavigateToPending }: LoginScreenProps) => {
+export const LoginScreen = ({ onNavigateToRegister, onNavigateToPending, onNavigateToForgotPassword }: LoginScreenProps) => {
   const [contactNumber, setContactNumber] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
@@ -85,7 +86,7 @@ export const LoginScreen = ({ onNavigateToRegister, onNavigateToPending }: Login
   };
 
   const handleForgotPassword = () => {
-    console.log('Forgot password');
+    onNavigateToForgotPassword();
   };
 
   const handleRegister = () => {
