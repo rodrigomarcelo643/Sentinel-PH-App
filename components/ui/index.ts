@@ -6,6 +6,7 @@ export { Card } from './Card';
 export { Checkbox } from './Checkbox';
 export { Divider } from './Divider';
 export { Input } from './Input';
+export { LocationPicker } from './LocationPicker';
 export { Spinner } from './Spinner';
 export { Switch } from './Switch';
 export { StepIndicator } from './StepIndicator';
