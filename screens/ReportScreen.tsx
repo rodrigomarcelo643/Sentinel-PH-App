@@ -41,6 +41,7 @@ export const ReportScreen = ({ onBack }: ReportScreenProps) => {
   const [description, setDescription] = useState('');
   const [location, setLocation] = useState('');
   const [barangay, setBarangay] = useState('');
+  const [coordinates, setCoordinates] = useState<{ latitude: number; longitude: number } | null>(null);
   const [proofImage, setProofImage] = useState<string | null>(null);
   const [showProofCamera, setShowProofCamera] = useState(false);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
@@ -88,7 +89,7 @@ export const ReportScreen = ({ onBack }: ReportScreenProps) => {
         proofImageUrl = await uploadToCloudinary(proofImage);
       }
 
-      const loc = await Location.getCurrentPositionAsync({});
+      const loc = coordinates || await Location.getCurrentPositionAsync({}).then(l => l.coords);
 
       await addDoc(collection(db, 'symptomReports'), {
         userId: user?.uid,
@@ -100,8 +101,8 @@ export const ReportScreen = ({ onBack }: ReportScreenProps) => {
         location,
         barangay,
         proofImageUrl,
-        latitude: loc.coords.latitude,
-        longitude: loc.coords.longitude,
+        latitude: loc.latitude,
+        longitude: loc.longitude,
         status: 'pending',
         createdAt: serverTimestamp(),
       });
@@ -134,11 +135,13 @@ export const ReportScreen = ({ onBack }: ReportScreenProps) => {
             description={description}
             location={location}
             barangay={barangay}
+            coordinates={coordinates}
             proofImage={proofImage}
             onDescriptionChange={setDescription}
-            onLocationChange={(loc, brgy) => {
+            onLocationChange={(loc, brgy, coords) => {
               setLocation(loc);
               setBarangay(brgy);
+              setCoordinates(coords);
             }}
             onImageSelect={setProofImage}
             onOpenCamera={() => setShowProofCamera(true)}
