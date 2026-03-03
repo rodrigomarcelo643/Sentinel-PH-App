@@ -1,7 +1,10 @@
 import { View, Text, TextInput, Animated, TouchableOpacity, ActivityIndicator } from 'react-native';
 import { Input } from '../ui';
-import { ChevronDown } from 'lucide-react-native';
-import { useState } from 'react';
+import { ChevronDown, MapPin } from 'lucide-react-native';
+import { useState, useEffect } from 'react';
+import { reverseGeocode } from '../../services/geoapify';
+import { googleReverseGeocode } from '../../services/googleMaps';
+import * as Location from 'expo-location';
 
 interface PersonalDetailsStepProps {
   fadeAnim: Animated.Value;
@@ -69,6 +72,45 @@ export const PersonalDetailsStep = ({
   errors,
 }: PersonalDetailsStepProps) => {
   const [loadingLocation, setLoadingLocation] = useState(false);
+
+  useEffect(() => {
+    if (!region && !municipality && !barangay) {
+      getLocation();
+    }
+  }, []);
+
+  const getLocation = async () => {
+    setLoadingLocation(true);
+    try {
+      const { status } = await Location.requestForegroundPermissionsAsync();
+      if (status !== 'granted') {
+        setLoadingLocation(false);
+        return;
+      }
+
+      const loc = await Location.getCurrentPositionAsync({});
+      const { latitude, longitude } = loc.coords;
+      
+      const result = await reverseGeocode(latitude, longitude);
+      
+      if (result) {
+        setRegion(result.state || 'Central Visayas');
+        setMunicipality(result.city || 'Unknown Municipality');
+        setBarangay(result.suburb || result.district || 'Unknown Barangay');
+      } else {
+        const googleResult = await googleReverseGeocode(latitude, longitude);
+        if (googleResult) {
+          setRegion('Central Visayas');
+          setMunicipality('Cebu City');
+          setBarangay(googleResult.barangay);
+        }
+      }
+    } catch (error) {
+      console.error('Location error:', error);
+    } finally {
+      setLoadingLocation(false);
+    }
+  };
   return (
     <Animated.View style={{ opacity: fadeAnim }}>
       <Text className="text-lg font-semibold text-[#1B365D] mb-4" style={{ fontFamily: 'Inter-SemiBold' }}>
@@ -201,11 +243,25 @@ export const PersonalDetailsStep = ({
         <Text className="text-lg font-semibold text-[#1B365D]" style={{ fontFamily: 'Inter-SemiBold' }}>
           Full Address
         </Text>
+        <TouchableOpacity
+          onPress={getLocation}
+          disabled={loadingLocation}
+          className="flex-row items-center bg-blue-50 px-3 py-2 rounded-lg"
+        >
+          {loadingLocation ? (
+            <ActivityIndicator size="small" color="#1B365D" />
+          ) : (
+            <MapPin size={16} color="#1B365D" strokeWidth={2} />
+          )}
+          <Text className="text-[#1B365D] text-sm ml-2" style={{ fontFamily: 'Inter-Medium' }}>
+            {loadingLocation ? 'Getting...' : 'Auto-fill'}
+          </Text>
+        </TouchableOpacity>
       </View>
 
       <Input
         label="Region *"
-        placeholder="Enter region"
+        placeholder="Auto-filled from location"
         value={region}
         onChangeText={setRegion}
         autoCapitalize="words"
@@ -213,7 +269,7 @@ export const PersonalDetailsStep = ({
 
       <Input
         label="Municipality *"
-        placeholder="Enter municipality"
+        placeholder="Auto-filled from location"
         value={municipality}
         onChangeText={setMunicipality}
         autoCapitalize="words"
@@ -221,7 +277,7 @@ export const PersonalDetailsStep = ({
 
       <Input
         label="Barangay *"
-        placeholder="Enter barangay"
+        placeholder="Auto-filled from location"
         value={barangay}
         onChangeText={setBarangay}
         autoCapitalize="words"
