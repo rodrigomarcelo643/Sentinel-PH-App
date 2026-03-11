@@ -17,11 +17,11 @@
 </div>
 <div align="center">
 <div style="display: flex; flex-direction: row; gap: 2px; overflow-x: auto;">
-  <img src="./public/login_screen.png" alt="Login Screen" width="140" style="border-radius: 4px;"/>
-  <img src="./public/home_screen.png" alt="Home Screen" width="140" style="border-radius: 4px;"/>
-  <img src="./public/report_screen.png" alt="Report Screen" width="140" style="border-radius: 4px;"/>
-  <img src="./public/map_screen.png" alt="Map Screen" width="140" style="border-radius: 4px;"/>
-  <img src="./public/qr_screen.png" alt="QR Screen" width="140" style="border-radius: 4px;"/>
+  <img src="./public/login_screen.png" alt="Login Screen" width="180" style="border-radius: 6px; box-shadow: 0 2px 6px rgba(0,0,0,0.1);"/>
+  <img src="./public/home_screen.png" alt="Home Screen" width="180" style="border-radius: 6px; box-shadow: 0 2px 6px rgba(0,0,0,0.1);"/>
+  <img src="./public/report_screen.png" alt="Report Screen" width="180" style="border-radius: 6px; box-shadow: 0 2px 6px rgba(0,0,0,0.1);"/>
+  <img src="./public/map_screen.png" alt="Map Screen" width="180" style="border-radius: 6px; box-shadow: 0 2px 6px rgba(0,0,0,0.1);"/>
+  <img src="./public/qr_screen.png" alt="QR Screen" width="180" style="border-radius: 6px; box-shadow: 0 2px 6px rgba(0,0,0,0.1);"/>
 </div>
   <div align="center">
     <p>
