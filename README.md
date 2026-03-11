@@ -16,26 +16,26 @@
 
 </div>
 <div align="center">
- <div style="display: flex; flex-direction: row; gap: 20px; justify-content: center; overflow-x: auto; padding: 10px 0;">
-  <div style="text-align: center; flex: 0 0 auto;">
-    <img src="./public/login_screen.png" alt="Login Screen" width="250" style="border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);"/>
-    <p style="margin-top: 8px; font-weight: 500;">Login Screen</p>
+ <div style="display: flex; flex-direction: row; gap: 10px; justify-content: center; padding: 10px 0;">
+  <div style="text-align: center;">
+    <img src="./public/login_screen.png" alt="Login Screen" width="180" style="border-radius: 6px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);"/>
+    <p style="margin-top: 4px; font-size: 14px; font-weight: 500;">Login</p>
   </div>
-  <div style="text-align: center; flex: 0 0 auto;">
-    <img src="./public/home_screen.png" alt="Home Screen" width="250" style="border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);"/>
-    <p style="margin-top: 8px; font-weight: 500;">Home Screen</p>
+  <div style="text-align: center;">
+    <img src="./public/home_screen.png" alt="Home Screen" width="180" style="border-radius: 6px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);"/>
+    <p style="margin-top: 4px; font-size: 14px; font-weight: 500;">Home</p>
   </div>
-  <div style="text-align: center; flex: 0 0 auto;">
-    <img src="./public/report_screen.png" alt="Report Screen" width="250" style="border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);"/>
-    <p style="margin-top: 8px; font-weight: 500;">Report Screen</p>
+  <div style="text-align: center;">
+    <img src="./public/report_screen.png" alt="Report Screen" width="180" style="border-radius: 6px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);"/>
+    <p style="margin-top: 4px; font-size: 14px; font-weight: 500;">Report</p>
   </div>
-  <div style="text-align: center; flex: 0 0 auto;">
-    <img src="./public/map_screen.png" alt="Map Screen" width="250" style="border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);"/>
-    <p style="margin-top: 8px; font-weight: 500;">Map Screen</p>
+  <div style="text-align: center;">
+    <img src="./public/map_screen.png" alt="Map Screen" width="180" style="border-radius: 6px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);"/>
+    <p style="margin-top: 4px; font-size: 14px; font-weight: 500;">Map</p>
   </div>
-  <div style="text-align: center; flex: 0 0 auto;">
-    <img src="./public/qr_screen.png" alt="QR Screen" width="250" style="border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);"/>
-    <p style="margin-top: 8px; font-weight: 500;">QR Screen</p>
+  <div style="text-align: center;">
+    <img src="./public/qr_screen.png" alt="QR Screen" width="180" style="border-radius: 6px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);"/>
+    <p style="margin-top: 4px; font-size: 14px; font-weight: 500;">QR</p>
   </div>
 </div>
   
