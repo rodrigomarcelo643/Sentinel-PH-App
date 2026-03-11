@@ -18,6 +18,67 @@
 
 **Track: 3 – Good Health and Well-Being**
 
+## 📱 App Screenshots
+
+<div align="center">
+  <h3>SentinelPH Mobile App Interface</h3>
+  <p>Browse through our key screens below</p>
+  
+  <table>
+    <tr>
+      <td align="center" width="20%">
+        <img src="./public/login_screen.png" alt="Login Screen" width="180"/>
+        <br />
+        <strong>🔐 Login Screen</strong>
+        <br />
+        <sub>Secure access to your health network</sub>
+      </td>
+      <td align="center" width="20%">
+        <img src="./public/home_screen.png" alt="Home Screen" width="180"/>
+        <br />
+        <strong>🏠 Home Screen</strong>
+        <br />
+        <sub>Personalized health dashboard</sub>
+      </td>
+      <td align="center" width="20%">
+        <img src="./public/report_screen.png" alt="Report Screen" width="180"/>
+        <br />
+        <strong>📝 Report Screen</strong>
+        <br />
+        <sub>Quick symptom reporting</sub>
+      </td>
+      <td align="center" width="20%">
+        <img src="./public/map_screen.png" alt="Map Screen" width="180"/>
+        <br />
+        <strong>🗺️ Map Screen</strong>
+        <br />
+        <sub>Real-time outbreak heatmap</sub>
+      </td>
+      <td align="center" width="20%">
+        <img src="./public/qr_screen.png" alt="QR Screen" width="180"/>
+        <br />
+        <strong>📱 QR Screen</strong>
+        <br />
+        <sub>Digital health passport</sub>
+      </td>
+    </tr>
+  </table>
+  
+  <div align="center">
+    <h4>🏷️ Feature Badges</h4>
+    <p>
+      <img src="https://img.shields.io/badge/Real--time_Tracking-20A0D8?style=for-the-badge&logo=clockify&logoColor=white" />
+      <img src="https://img.shields.io/badge/Offline_First-1B365D?style=for-the-badge&logo=cloudflare&logoColor=white" />
+      <img src="https://img.shields.io/badge/Privacy_Focused-34A853?style=for-the-badge&logo=proton&logoColor=white" />
+      <img src="https://img.shields.io/badge/Low_Bandwidth-FF6B35?style=for-the-badge&logo=speedtest&logoColor=white" />
+      <img src="https://img.shields.io/badge/AI_Powered-9747FF?style=for-the-badge&logo=tensorflow&logoColor=white" />
+      <img src="https://img.shields.io/badge/Community_Driven-E4405F?style=for-the-badge&logo=groupon&logoColor=white" />
+    </p>
+  </div>
+</div>
+
+<br />
+
 ## 🎯 Problem Statement
 
 The Philippines has no shortage of health data—it has a shortage of the right data at the right time. The current approach to outbreak detection is reactive, seeing outbreaks only after hospital admissions spike—when it's already too late for prevention. Communities themselves—the people who notice the first fever, the first child with diarrhea, the first neighbor who looks sick—have no structured way to share what they see.
@@ -61,16 +122,19 @@ The app is designed around five core tabs, making navigation simple and intuitiv
 **🏠 Home Screen**
 - Displays a personalized health summary and the user's current status
 - Provides a quick overview of recent activity and key health metrics for the user's household
+- Quick-access buttons for reporting and viewing history
 
 **➕ Report Symptom**
 - A dedicated, easy-to-use form for quickly reporting health observations
 - Users can specify if the report is for themself or an observation of someone in the community
 - Captures key symptoms and basic location data to fuel the intelligence network
+- Offline-capable with auto-sync when connectivity returns
 
 **📜 Report History**
 - A complete, chronological log of all symptoms and observations the user has previously reported
 - Allows users to track their own and their family's health trends over time
 - Serves as a personal health record that can be referenced during healthcare visits
+- Filterable by date, symptom type, and household member
 
 **📢 Announcements**
 - A real-time information feed for receiving critical updates
@@ -83,6 +147,13 @@ The app is designed around five core tabs, making navigation simple and intuitiv
 - Shows a geographic visualization of recently verified reports in the area
 - Helps users see what symptoms are circulating in their community, promoting awareness and early precaution
 - Uses clustering to show the density of observations without compromising individual privacy
+- Color-coded heat layers for different symptom categories
+
+**📱 QR Code Scanner**
+- Scan QR codes for instant health profile access
+- View verified health information of family members
+- Share health data securely with healthcare providers
+- Quick check-in at partner clinics and pharmacies
 
 ### 🏥 For Barangay Health Workers (BHW Dashboard)
 To support the sentinel network, BHWs have access to a powerful web dashboard for managing and responding to community intelligence.
