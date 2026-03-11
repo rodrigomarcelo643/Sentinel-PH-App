@@ -16,26 +16,28 @@
 
 </div>
 <div align="center">
-  
-  <table>
-    <tr>
-      <td align="center" width="20%">
-        <img src="./public/login_screen.png" alt="Login Screen" width="180"/>
-      </td>
-      <td align="center" width="20%">
-        <img src="./public/home_screen.png" alt="Home Screen" width="180"/>
-      </td>
-      <td align="center" width="20%">
-        <img src="./public/report_screen.png" alt="Report Screen" width="180"/>
-      </td>
-      <td align="center" width="20%">
-        <img src="./public/map_screen.png" alt="Map Screen" width="180"/>
-      </td>
-      <td align="center" width="20%">
-        <img src="./public/qr_screen.png" alt="QR Screen" width="180"/>
-      </td>
-    </tr>
-  </table>
+  <div style="display: flex; flex-wrap: wrap; gap: 20px; justify-content: center;">
+  <div style="text-align: center;">
+    <img src="./public/login_screen.png" alt="Login Screen" width="250" style="border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);"/>
+    <p style="margin-top: 8px; font-weight: 500;">Login Screen</p>
+  </div>
+  <div style="text-align: center;">
+    <img src="./public/home_screen.png" alt="Home Screen" width="250" style="border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);"/>
+    <p style="margin-top: 8px; font-weight: 500;">Home Screen</p>
+  </div>
+  <div style="text-align: center;">
+    <img src="./public/report_screen.png" alt="Report Screen" width="250" style="border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);"/>
+    <p style="margin-top: 8px; font-weight: 500;">Report Screen</p>
+  </div>
+  <div style="text-align: center;">
+    <img src="./public/map_screen.png" alt="Map Screen" width="250" style="border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);"/>
+    <p style="margin-top: 8px; font-weight: 500;">Map Screen</p>
+  </div>
+  <div style="text-align: center;">
+    <img src="./public/qr_screen.png" alt="QR Screen" width="250" style="border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);"/>
+    <p style="margin-top: 8px; font-weight: 500;">QR Screen</p>
+  </div>
+</div>
   
   <div align="center">
     <p>
