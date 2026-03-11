@@ -18,54 +18,29 @@
 
 **Track: 3 – Good Health and Well-Being**
 
-## 📱 App Screenshots
-
 <div align="center">
-  <h3>SentinelPH Mobile App Interface</h3>
-  <p>Browse through our key screens below</p>
   
   <table>
     <tr>
       <td align="center" width="20%">
         <img src="./public/login_screen.png" alt="Login Screen" width="180"/>
-        <br />
-        <strong>🔐 Login Screen</strong>
-        <br />
-        <sub>Secure access to your health network</sub>
       </td>
       <td align="center" width="20%">
         <img src="./public/home_screen.png" alt="Home Screen" width="180"/>
-        <br />
-        <strong>🏠 Home Screen</strong>
-        <br />
-        <sub>Personalized health dashboard</sub>
       </td>
       <td align="center" width="20%">
         <img src="./public/report_screen.png" alt="Report Screen" width="180"/>
-        <br />
-        <strong>📝 Report Screen</strong>
-        <br />
-        <sub>Quick symptom reporting</sub>
       </td>
       <td align="center" width="20%">
         <img src="./public/map_screen.png" alt="Map Screen" width="180"/>
-        <br />
-        <strong>🗺️ Map Screen</strong>
-        <br />
-        <sub>Real-time outbreak heatmap</sub>
       </td>
       <td align="center" width="20%">
         <img src="./public/qr_screen.png" alt="QR Screen" width="180"/>
-        <br />
-        <strong>📱 QR Screen</strong>
-        <br />
-        <sub>Digital health passport</sub>
       </td>
     </tr>
   </table>
   
   <div align="center">
-    <h4>🏷️ Feature Badges</h4>
     <p>
       <img src="https://img.shields.io/badge/Real--time_Tracking-20A0D8?style=for-the-badge&logo=clockify&logoColor=white" />
       <img src="https://img.shields.io/badge/Offline_First-1B365D?style=for-the-badge&logo=cloudflare&logoColor=white" />
