@@ -15,9 +15,6 @@
 ![n8n](https://img.shields.io/badge/n8n-EA4B71?logo=n8n&logoColor=white)
 
 </div>
-
-**Track: 3 – Good Health and Well-Being**
-
 <div align="center">
   
   <table>
@@ -53,6 +50,7 @@
 </div>
 
 <br />
+**Track: 3 – Good Health and Well-Being**
 
 ## 🎯 Problem Statement
 
