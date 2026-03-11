@@ -16,29 +16,28 @@
 
 </div>
 <div align="center">
- <div style="display: flex; flex-direction: row; gap: 10px; justify-content: center; padding: 10px 0;">
-  <div style="text-align: center;">
-    <img src="./public/login_screen.png" alt="Login Screen" width="180" style="border-radius: 6px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);"/>
-    <p style="margin-top: 4px; font-size: 14px; font-weight: 500;">Login</p>
+ <div style="display: flex; flex-direction: row; gap: 5px; width: 100%; overflow-x: auto; white-space: nowrap; padding: 10px 0;">
+  <div style="display: inline-block; text-align: center;">
+    <img src="./public/login_screen.png" alt="Login Screen" width="160" style="border-radius: 6px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);"/>
+    <p style="margin-top: 4px; font-size: 12px; font-weight: 500;">Login</p>
   </div>
-  <div style="text-align: center;">
-    <img src="./public/home_screen.png" alt="Home Screen" width="180" style="border-radius: 6px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);"/>
-    <p style="margin-top: 4px; font-size: 14px; font-weight: 500;">Home</p>
+  <div style="display: inline-block; text-align: center;">
+    <img src="./public/home_screen.png" alt="Home Screen" width="160" style="border-radius: 6px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);"/>
+    <p style="margin-top: 4px; font-size: 12px; font-weight: 500;">Home</p>
   </div>
-  <div style="text-align: center;">
-    <img src="./public/report_screen.png" alt="Report Screen" width="180" style="border-radius: 6px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);"/>
-    <p style="margin-top: 4px; font-size: 14px; font-weight: 500;">Report</p>
+  <div style="display: inline-block; text-align: center;">
+    <img src="./public/report_screen.png" alt="Report Screen" width="160" style="border-radius: 6px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);"/>
+    <p style="margin-top: 4px; font-size: 12px; font-weight: 500;">Report</p>
   </div>
-  <div style="text-align: center;">
-    <img src="./public/map_screen.png" alt="Map Screen" width="180" style="border-radius: 6px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);"/>
-    <p style="margin-top: 4px; font-size: 14px; font-weight: 500;">Map</p>
+  <div style="display: inline-block; text-align: center;">
+    <img src="./public/map_screen.png" alt="Map Screen" width="160" style="border-radius: 6px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);"/>
+    <p style="margin-top: 4px; font-size: 12px; font-weight: 500;">Map</p>
   </div>
-  <div style="text-align: center;">
-    <img src="./public/qr_screen.png" alt="QR Screen" width="180" style="border-radius: 6px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);"/>
-    <p style="margin-top: 4px; font-size: 14px; font-weight: 500;">QR</p>
+  <div style="display: inline-block; text-align: center;">
+    <img src="./public/qr_screen.png" alt="QR Screen" width="160" style="border-radius: 6px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);"/>
+    <p style="margin-top: 4px; font-size: 12px; font-weight: 500;">QR</p>
   </div>
 </div>
-  
   <div align="center">
     <p>
       <img src="https://img.shields.io/badge/Real--time_Tracking-20A0D8?style=for-the-badge&logo=clockify&logoColor=white" />
