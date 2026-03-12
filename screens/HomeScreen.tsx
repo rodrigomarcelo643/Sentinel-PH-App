@@ -1,5 +1,5 @@
-import { View, Text, TouchableOpacity, Dimensions, Platform, Image, Animated } from 'react-native';
-import { useState, useRef } from 'react';
+import { View, Text, TouchableOpacity, Dimensions, Platform, Image, Animated, BackHandler } from 'react-native';
+import { useState, useRef, useEffect, useCallback } from 'react';
 import { Home, History, Map, MapPinned,  User, Plus, Bell, Menu } from 'lucide-react-native';
 import { HomeTab, HistoryTab, MapTab, ProfileTab } from './tabs';
 import { ReportScreen } from './ReportScreen';
@@ -26,6 +26,48 @@ export const HomeScreen = () => {
   const { user } = useAuth();
   const { unreadCount } = useAnnouncements();
   const drawerAnim = useRef(new Animated.Value(-width * 0.7)).current;
+
+  // Handle Android back button for proper navigation
+  useEffect(() => {
+    if (Platform.OS === 'android') {
+      const backAction = () => {
+        if (drawerOpen) {
+          closeDrawer();
+          return true;
+        }
+        if (activeTab !== 'home') {
+          // Navigate back to appropriate screen
+          if (activeTab === 'announcementDetail') {
+            setActiveTab('announcements');
+          } else if (['announcements', 'community', 'outbreaks', 'bhwDirectory', 'emergencyContacts'].includes(activeTab)) {
+            setActiveTab('home');
+          } else if (activeTab === 'aiDoctor') {
+            setActiveTab('history');
+          } else if (activeTab === 'qr') {
+            setActiveTab('profile');
+          } else {
+            setActiveTab('home');
+          }
+          return true;
+        }
+        return false;
+      };
+
+      const backHandler = BackHandler.addEventListener('hardwareBackPress', backAction);
+      return () => backHandler.remove();
+    }
+  }, [activeTab, drawerOpen]);
+
+  // Navigation handler with proper state persistence
+  const navigateToTab = useCallback((tab: typeof activeTab, announcement?: Announcement) => {
+    if (announcement) {
+      setSelectedAnnouncement(announcement);
+    }
+    setActiveTab(tab);
+    if (drawerOpen) {
+      closeDrawer();
+    }
+  }, [drawerOpen]);
 
   const toggleDrawer = () => {
     if (drawerOpen) {
@@ -56,38 +98,29 @@ export const HomeScreen = () => {
 
   const renderContent = () => {
     switch (activeTab) {
-      case 'home': return <HomeTab onNavigateToMap={() => setActiveTab('map')} onNavigateToAnnouncements={() => setActiveTab('announcements')} onNavigateToHistory={() => setActiveTab('history')} />;
-      case 'history': return <HistoryTab onNavigateToAiDoctor={() => setActiveTab('aiDoctor')} />;
+      case 'home': return <HomeTab onNavigateToMap={() => navigateToTab('map')} onNavigateToAnnouncements={() => navigateToTab('announcements')} onNavigateToHistory={() => navigateToTab('history')} />;
+      case 'history': return <HistoryTab onNavigateToAiDoctor={() => navigateToTab('aiDoctor')} />;
       case 'map': return <MapTab />;
-      case 'profile': return <ProfileTab navigation={{ navigate: (screen: string) => setActiveTab(screen as any) }} />;
-      case 'report': return <ReportScreen onBack={() => setActiveTab('home')} />;
-      case 'aiDoctor': return <AiDoctorAssistantScreen onBack={() => setActiveTab('history')} />;
-      case 'qr': return <QRScreen navigation={{ goBack: () => setActiveTab('profile') }} />;
+      case 'profile': return <ProfileTab navigation={{ navigate: (screen: string) => navigateToTab(screen as any) }} />;
+      case 'report': return <ReportScreen onBack={() => navigateToTab('home')} />;
+      case 'aiDoctor': return <AiDoctorAssistantScreen onBack={() => navigateToTab('history')} />;
+      case 'qr': return <QRScreen navigation={{ goBack: () => navigateToTab('profile') }} />;
       case 'announcements': return (
         <AnnouncementsScreen 
-          onBack={() => {
-            setActiveTab('home');
-            closeDrawer();
-          }} 
-          onSelectAnnouncement={(announcement) => {
-            setSelectedAnnouncement(announcement);
-            setActiveTab('announcementDetail');
-          }}
+          onBack={() => navigateToTab('home')} 
+          onSelectAnnouncement={(announcement) => navigateToTab('announcementDetail', announcement)}
         />
       );
       case 'announcementDetail': return selectedAnnouncement ? (
         <AnnouncementDetailScreen 
           announcement={selectedAnnouncement}
-          onBack={() => {
-            setActiveTab('announcements');
-            closeDrawer();
-          }}
+          onBack={() => navigateToTab('announcements')}
         />
       ) : null;
-      case 'community': return <CommunityScreen onBack={() => { setActiveTab('home'); closeDrawer(); }} />;
-      case 'outbreaks': return <RecentOutbreaksScreen onBack={() => { setActiveTab('home'); closeDrawer(); }} />;
-      case 'bhwDirectory': return <BHWDirectoryScreen onBack={() => { setActiveTab('home'); closeDrawer(); }} />;
-      case 'emergencyContacts': return <EmergencyContactsScreen onBack={() => { setActiveTab('home'); closeDrawer(); }} />;
+      case 'community': return <CommunityScreen onBack={() => navigateToTab('home')} />;
+      case 'outbreaks': return <RecentOutbreaksScreen onBack={() => navigateToTab('home')} />;
+      case 'bhwDirectory': return <BHWDirectoryScreen onBack={() => navigateToTab('home')} />;
+      case 'emergencyContacts': return <EmergencyContactsScreen onBack={() => navigateToTab('home')} />;
     }
   };
 
@@ -120,23 +153,23 @@ export const HomeScreen = () => {
         drawerAnim={drawerAnim} 
         onNavigateToAnnouncements={() => {
           toggleDrawer();
-          setTimeout(() => setActiveTab('announcements'), 300);
+          setTimeout(() => navigateToTab('announcements'), 300);
         }}
         onNavigateToCommunity={() => {
           toggleDrawer();
-          setTimeout(() => setActiveTab('community'), 300);
+          setTimeout(() => navigateToTab('community'), 300);
         }}
         onNavigateToOutbreaks={() => {
           toggleDrawer();
-          setTimeout(() => setActiveTab('outbreaks'), 300);
+          setTimeout(() => navigateToTab('outbreaks'), 300);
         }}
         onNavigateToBHWDirectory={() => {
           toggleDrawer();
-          setTimeout(() => setActiveTab('bhwDirectory'), 300);
+          setTimeout(() => navigateToTab('bhwDirectory'), 300);
         }}
         onNavigateToEmergencyContacts={() => {
           toggleDrawer();
-          setTimeout(() => setActiveTab('emergencyContacts'), 300);
+          setTimeout(() => navigateToTab('emergencyContacts'), 300);
         }}
       />
 
@@ -176,7 +209,7 @@ export const HomeScreen = () => {
         <View className="flex-row items-center" style={{ gap: 15 }}>
           {/* --- Notification Icon with Unread Count --- */}
           <TouchableOpacity 
-            onPress={() => setActiveTab('announcements')}
+            onPress={() => navigateToTab('announcements')}
             className="relative p-1"
           >
             <Bell size={26} color="#1B365D" strokeWidth={2} />
@@ -206,7 +239,7 @@ export const HomeScreen = () => {
           </TouchableOpacity>
           
           <TouchableOpacity
-            onPress={() => setActiveTab('profile')}
+            onPress={() => navigateToTab('profile')}
             style={{
                 shadowColor: '#1B365D',
                 shadowOffset: { width: 0, height: 4 },
@@ -252,24 +285,24 @@ export const HomeScreen = () => {
           height: 85,
           paddingBottom: Platform.OS === 'ios' ? 30 : 15
         }}>
-          <TouchableOpacity onPress={() => setActiveTab('home')} className="flex-1 items-center">
+          <TouchableOpacity onPress={() => navigateToTab('home')} className="flex-1 items-center">
             <Home size={22} color={activeTab === 'home' ? '#1B365D' : '#9CA3AF'} strokeWidth={activeTab === 'home' ? 2.5 : 2} />
             <Text style={{ color: activeTab === 'home' ? '#1B365D' : '#9CA3AF', fontSize: 10, marginTop: 5, fontWeight: activeTab === 'home' ? '700' : '500' }}>Home</Text>
           </TouchableOpacity>
 
-          <TouchableOpacity onPress={() => setActiveTab('history')} className="flex-1 items-center">
+          <TouchableOpacity onPress={() => navigateToTab('history')} className="flex-1 items-center">
             <History size={22} color={activeTab === 'history' ? '#1B365D' : '#9CA3AF'} strokeWidth={activeTab === 'history' ? 2.5 : 2} />
             <Text style={{ color: activeTab === 'history' ? '#1B365D' : '#9CA3AF', fontSize: 10, marginTop: 5, fontWeight: activeTab === 'history' ? '700' : '500' }}>History</Text>
           </TouchableOpacity>
 
           <View style={{ width: 80 }} />
 
-          <TouchableOpacity onPress={() => setActiveTab('map')} className="flex-1 items-center">
+          <TouchableOpacity onPress={() => navigateToTab('map')} className="flex-1 items-center">
             <MapPinned size={22} color={activeTab === 'map' ? '#1B365D' : '#9CA3AF'} strokeWidth={activeTab === 'map' ? 2.5 : 2} />
             <Text style={{ color: activeTab === 'map' ? '#1B365D' : '#9CA3AF', fontSize: 10, marginTop: 5, fontWeight: activeTab === 'map' ? '700' : '500' }}>Map</Text>
           </TouchableOpacity>
 
-          <TouchableOpacity onPress={() => setActiveTab('profile')} className="flex-1 items-center">
+          <TouchableOpacity onPress={() => navigateToTab('profile')} className="flex-1 items-center">
             <User size={22} color={activeTab === 'profile' ? '#1B365D' : '#9CA3AF'} strokeWidth={activeTab === 'profile' ? 2.5 : 2} />
             <Text style={{ color: activeTab === 'profile' ? '#1B365D' : '#9CA3AF', fontSize: 10, marginTop: 5, fontWeight: activeTab === 'profile' ? '700' : '500' }}>Profile</Text>
           </TouchableOpacity>
@@ -277,7 +310,7 @@ export const HomeScreen = () => {
 
         {/* --- The Deep-Pocket FAB (Modified Shadow & Color) --- */}
         <TouchableOpacity
-          onPress={() => setActiveTab('report')}
+          onPress={() => navigateToTab('report')}
           activeOpacity={0.8}
           style={{
             position: 'absolute',

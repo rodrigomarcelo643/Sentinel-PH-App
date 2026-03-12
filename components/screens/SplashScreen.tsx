@@ -1,15 +1,49 @@
-import { View, Image, ActivityIndicator } from 'react-native';
+import { View, Image, ActivityIndicator, Dimensions, Platform, StatusBar } from 'react-native';
+import { useEffect, useState } from 'react';
+
+const { width, height } = Dimensions.get('window');
 
 export const SplashScreen = () => {
+  const [imageLoaded, setImageLoaded] = useState(false);
+
+  useEffect(() => {
+    // Ensure splash screen shows for minimum duration
+    const timer = setTimeout(() => {
+      setImageLoaded(true);
+    }, 1000);
+    return () => clearTimeout(timer);
+  }, []);
+
   return (
-    <View className="flex-1 items-center justify-center bg-white">
-      <View className="items-center">
+    <View 
+      style={{
+        flex: 1,
+        alignItems: 'center',
+        justifyContent: 'center',
+        backgroundColor: '#ffffff',
+        paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight || 0 : 0,
+      }}
+    >
+      <StatusBar backgroundColor="#ffffff" barStyle="dark-content" />
+      <View style={{ alignItems: 'center' }}>
         <Image
           source={require('../../assets/logo/logo.png')}
-          className="h-[200px] w-[200px] "
+          style={{
+            width: Math.min(width * 0.6, 200),
+            height: Math.min(width * 0.6, 200),
+            marginBottom: 20,
+          }}
           resizeMode="contain"
+          onLoad={() => setImageLoaded(true)}
+          onError={() => setImageLoaded(true)}
         />
-        <ActivityIndicator size="large" color="#1B365D" className="-mt-10" />
+        {imageLoaded && (
+          <ActivityIndicator 
+            size="large" 
+            color="#1B365D" 
+            style={{ marginTop: -10 }}
+          />
+        )}
       </View>
     </View>
   );
