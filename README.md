@@ -284,18 +284,3 @@ pnpm web            # Run on web
 pnpm lint           # Lint code
 pnpm format         # Format code with Prettier
 ```
-
-## 🤝 Contributing
-
-Contributions are welcome! Please feel free to submit a Pull Request.
-
-## 📄 License
-
-This project is part of the Innovation Cup Hackathon.
-
----
-
-<div align="center">
-  <strong>Built for Innovation Cup Hackathon | Empowering Communities, Protecting Health</strong><br>
-  Made with ❤️ for Innovation Cup Hackathon
-</div>
