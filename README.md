@@ -36,7 +36,6 @@
 </div>
 
 <br />
-**Track: 3 – Good Health and Well-Being**
 
 ## 🎯 Problem Statement
 
